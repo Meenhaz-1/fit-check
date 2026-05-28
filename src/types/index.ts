@@ -1,4 +1,3 @@
-// Wardrobe Item
 export interface WardrobeItem {
   id: string
   filename: string
@@ -12,7 +11,6 @@ export interface WardrobeItem {
   metadata?: Record<string, unknown>
 }
 
-// Evaluation
 export interface Evaluation {
   id: string
   itemFilename: string
@@ -22,24 +20,12 @@ export interface Evaluation {
   createdAt: string
 }
 
-// Pairing Recommendation
 export interface EvaluationPairing {
   wardrobeItemId: string
   compatibilityScore: number
   explanation: string
 }
 
-// Metadata from AI
-export interface ExtractedMetadata {
-  color: string
-  material: string
-  formality: string
-  fit: string
-  silhouette: string
-  visualWeight: string
-}
-
-// API Response Types
 export interface ApiSuccessResponse<T> {
   success: true
   data: T

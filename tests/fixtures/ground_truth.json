@@ -1,0 +1,1168 @@
+{
+  "tests": [
+    {
+      "id": "red-tshirt-plain",
+      "image": "red-tshirt-plain.png",
+      "description": "Plain red cotton t-shirt",
+      "expected": {
+        "item_type": "t-shirt",
+        "color": "red",
+        "material": "cotton",
+        "formality": "casual",
+        "fit": "regular",
+        "silhouette": "straight",
+        "visual_weight": "light"
+      },
+      "tolerance": {
+        "color": [
+          "red",
+          "bright red",
+          "crimson",
+          "scarlet"
+        ],
+        "material": [
+          "cotton",
+          "cotton blend"
+        ],
+        "fit": [
+          "regular",
+          "fitted"
+        ],
+        "silhouette": [
+          "straight",
+          "fitted"
+        ]
+      }
+    },
+    {
+      "id": "blue-jeans-standard",
+      "image": "blue-jeans-standard.png",
+      "description": "Classic blue denim jeans",
+      "expected": {
+        "item_type": "jeans",
+        "color": "blue",
+        "material": "denim",
+        "formality": "casual",
+        "fit": "regular",
+        "silhouette": "tapered",
+        "visual_weight": "heavy"
+      },
+      "tolerance": {
+        "color": [
+          "blue",
+          "dark blue",
+          "indigo"
+        ],
+        "material": [
+          "denim",
+          "100% cotton"
+        ],
+        "fit": [
+          "regular",
+          "fitted",
+          "loose"
+        ],
+        "silhouette": [
+          "tapered",
+          "straight"
+        ]
+      }
+    },
+    {
+      "id": "white-button-up-formal",
+      "image": "white-button-up-formal.png",
+      "description": "White button-up dress shirt",
+      "expected": {
+        "item_type": "button-up shirt",
+        "color": "white",
+        "material": "cotton",
+        "formality": "business",
+        "fit": "fitted",
+        "silhouette": "straight",
+        "visual_weight": "light"
+      },
+      "tolerance": {
+        "color": [
+          "white",
+          "off-white",
+          "ivory"
+        ],
+        "material": [
+          "cotton",
+          "cotton blend",
+          "linen"
+        ],
+        "formality": [
+          "business",
+          "business casual"
+        ],
+        "fit": [
+          "fitted",
+          "regular"
+        ]
+      }
+    },
+    {
+      "id": "black-blazer-wool",
+      "image": "black-blazer-wool.png",
+      "description": "Black wool blazer",
+      "expected": {
+        "item_type": "blazer",
+        "color": "black",
+        "material": "wool",
+        "formality": "formal",
+        "fit": "fitted",
+        "silhouette": "fitted",
+        "visual_weight": "heavy"
+      },
+      "tolerance": {
+        "color": [
+          "black",
+          "charcoal",
+          "dark gray"
+        ],
+        "material": [
+          "wool",
+          "wool blend"
+        ],
+        "formality": [
+          "formal",
+          "business"
+        ],
+        "fit": [
+          "fitted",
+          "regular"
+        ]
+      }
+    },
+    {
+      "id": "gray-cardigan-cozy",
+      "image": "gray-cardigan-cozy.png",
+      "description": "Gray wool cardigan sweater",
+      "expected": {
+        "item_type": "cardigan",
+        "color": "gray",
+        "material": "wool",
+        "formality": "casual",
+        "fit": "loose",
+        "silhouette": "oversized",
+        "visual_weight": "medium"
+      },
+      "tolerance": {
+        "color": [
+          "gray",
+          "grey",
+          "light gray",
+          "dark gray"
+        ],
+        "material": [
+          "wool",
+          "wool blend",
+          "cotton"
+        ],
+        "fit": [
+          "loose",
+          "regular",
+          "oversized"
+        ],
+        "silhouette": [
+          "oversized",
+          "straight"
+        ]
+      }
+    },
+    {
+      "id": "khaki-chinos",
+      "image": "khaki-chinos.png",
+      "description": "Khaki chino pants",
+      "expected": {
+        "item_type": "chinos",
+        "color": "khaki",
+        "material": "cotton",
+        "formality": "business casual",
+        "fit": "regular",
+        "silhouette": "straight",
+        "visual_weight": "medium"
+      },
+      "tolerance": {
+        "color": [
+          "khaki",
+          "tan",
+          "beige",
+          "light brown"
+        ],
+        "material": [
+          "cotton",
+          "cotton blend"
+        ],
+        "fit": [
+          "regular",
+          "fitted"
+        ],
+        "silhouette": [
+          "straight",
+          "tapered"
+        ]
+      }
+    },
+    {
+      "id": "navy-polo-shirt",
+      "image": "navy-polo-shirt.png",
+      "description": "Navy blue polo shirt",
+      "expected": {
+        "item_type": "polo shirt",
+        "color": "navy",
+        "material": "cotton",
+        "formality": "business casual",
+        "fit": "fitted",
+        "silhouette": "straight",
+        "visual_weight": "light"
+      },
+      "tolerance": {
+        "color": [
+          "navy",
+          "navy blue",
+          "dark blue"
+        ],
+        "material": [
+          "cotton",
+          "cotton blend",
+          "polyester"
+        ],
+        "fit": [
+          "fitted",
+          "regular"
+        ],
+        "silhouette": [
+          "straight"
+        ]
+      }
+    },
+    {
+      "id": "green-sweater-dark",
+      "image": "green-sweater-dark.png",
+      "description": "Dark green wool sweater",
+      "expected": {
+        "item_type": "sweater",
+        "color": "green",
+        "material": "wool",
+        "formality": "casual",
+        "fit": "regular",
+        "silhouette": "straight",
+        "visual_weight": "medium"
+      },
+      "tolerance": {
+        "color": [
+          "green",
+          "dark green",
+          "forest green"
+        ],
+        "material": [
+          "wool",
+          "wool blend",
+          "cotton blend"
+        ],
+        "fit": [
+          "regular",
+          "loose"
+        ],
+        "silhouette": [
+          "straight",
+          "oversized"
+        ]
+      }
+    },
+    {
+      "id": "red-tshirt-realistic",
+      "image": "red-tshirt-realistic.jpg",
+      "description": "red t-shirt",
+      "expected": {
+        "item_type": "t-shirt",
+        "color": "red",
+        "material": "cotton",
+        "formality": "casual",
+        "fit": "regular",
+        "silhouette": "straight",
+        "visual_weight": "light"
+      },
+      "tolerance": {
+        "color": [
+          "red",
+          "light red",
+          "dark red"
+        ],
+        "material": [
+          "cotton"
+        ],
+        "fit": [
+          "regular"
+        ],
+        "formality": [
+          "casual"
+        ]
+      },
+      "source": "Pexels"
+    },
+    {
+      "id": "white-shirt-realistic",
+      "image": "white-shirt-realistic.jpg",
+      "description": "white button-up shirt",
+      "expected": {
+        "item_type": "button-up shirt",
+        "color": "white",
+        "material": "cotton",
+        "formality": "business",
+        "fit": "fitted",
+        "silhouette": "straight",
+        "visual_weight": "light"
+      },
+      "tolerance": {
+        "color": [
+          "white",
+          "light white",
+          "dark white"
+        ],
+        "material": [
+          "cotton"
+        ],
+        "fit": [
+          "fitted"
+        ],
+        "formality": [
+          "business"
+        ]
+      },
+      "source": "Pexels"
+    },
+    {
+      "id": "black-blazer-realistic",
+      "image": "black-blazer-realistic.jpg",
+      "description": "black blazer",
+      "expected": {
+        "item_type": "blazer",
+        "color": "black",
+        "material": "wool",
+        "formality": "formal",
+        "fit": "fitted",
+        "silhouette": "fitted",
+        "visual_weight": "heavy"
+      },
+      "tolerance": {
+        "color": [
+          "black",
+          "light black",
+          "dark black"
+        ],
+        "material": [
+          "wool"
+        ],
+        "fit": [
+          "fitted"
+        ],
+        "formality": [
+          "formal"
+        ]
+      },
+      "source": "Pexels"
+    },
+    {
+      "id": "gray-sweater-realistic",
+      "image": "gray-sweater-realistic.jpg",
+      "description": "gray sweater",
+      "expected": {
+        "item_type": "sweater",
+        "color": "gray",
+        "material": "wool",
+        "formality": "casual",
+        "fit": "regular",
+        "silhouette": "straight",
+        "visual_weight": "medium"
+      },
+      "tolerance": {
+        "color": [
+          "gray",
+          "light gray",
+          "dark gray"
+        ],
+        "material": [
+          "wool"
+        ],
+        "fit": [
+          "regular"
+        ],
+        "formality": [
+          "casual"
+        ]
+      },
+      "source": "Pexels"
+    },
+    {
+      "id": "khaki-pants-realistic",
+      "image": "khaki-pants-realistic.jpg",
+      "description": "khaki chinos",
+      "expected": {
+        "item_type": "chinos",
+        "color": "khaki",
+        "material": "cotton",
+        "formality": "business casual",
+        "fit": "regular",
+        "silhouette": "straight",
+        "visual_weight": "medium"
+      },
+      "tolerance": {
+        "color": [
+          "khaki",
+          "light khaki",
+          "dark khaki"
+        ],
+        "material": [
+          "cotton"
+        ],
+        "fit": [
+          "regular"
+        ],
+        "formality": [
+          "business casual"
+        ]
+      },
+      "source": "Pexels"
+    },
+    {
+      "id": "black-dress-realistic",
+      "image": "black-dress-realistic.jpg",
+      "description": "black dress",
+      "expected": {
+        "item_type": "dress",
+        "color": "black",
+        "material": "cotton",
+        "formality": "formal",
+        "fit": "fitted",
+        "silhouette": "fitted",
+        "visual_weight": "medium"
+      },
+      "tolerance": {
+        "color": [
+          "black",
+          "light black",
+          "dark black"
+        ],
+        "material": [
+          "cotton"
+        ],
+        "fit": [
+          "fitted"
+        ],
+        "formality": [
+          "formal"
+        ]
+      },
+      "source": "Pexels"
+    },
+    {
+      "id": "navy-polo-realistic",
+      "image": "navy-polo-realistic.jpg",
+      "description": "navy polo shirt",
+      "expected": {
+        "item_type": "polo shirt",
+        "color": "navy",
+        "material": "cotton",
+        "formality": "business casual",
+        "fit": "fitted",
+        "silhouette": "straight",
+        "visual_weight": "light"
+      },
+      "tolerance": {
+        "color": [
+          "navy",
+          "light navy",
+          "dark navy"
+        ],
+        "material": [
+          "cotton"
+        ],
+        "fit": [
+          "fitted"
+        ],
+        "formality": [
+          "business casual"
+        ]
+      },
+      "source": "Pexels"
+    },
+    {
+      "id": "brown-jacket-realistic",
+      "image": "brown-jacket-realistic.jpg",
+      "description": "brown jacket",
+      "expected": {
+        "item_type": "jacket",
+        "color": "brown",
+        "material": "leather",
+        "formality": "casual",
+        "fit": "fitted",
+        "silhouette": "fitted",
+        "visual_weight": "heavy"
+      },
+      "tolerance": {
+        "color": [
+          "brown",
+          "light brown",
+          "dark brown"
+        ],
+        "material": [
+          "leather"
+        ],
+        "fit": [
+          "fitted"
+        ],
+        "formality": [
+          "casual"
+        ]
+      },
+      "source": "Pexels"
+    },
+    {
+      "id": "cardigan-realistic",
+      "image": "cardigan-realistic.jpg",
+      "description": "beige cardigan",
+      "expected": {
+        "item_type": "cardigan",
+        "color": "beige",
+        "material": "wool",
+        "formality": "casual",
+        "fit": "loose",
+        "silhouette": "oversized",
+        "visual_weight": "medium"
+      },
+      "tolerance": {
+        "color": [
+          "beige",
+          "light beige",
+          "dark beige"
+        ],
+        "material": [
+          "wool"
+        ],
+        "fit": [
+          "loose"
+        ],
+        "formality": [
+          "casual"
+        ]
+      },
+      "source": "Pexels"
+    },
+    {
+      "id": "brown-jacket-casual",
+      "image": "brown-jacket-casual.png",
+      "description": "Brown leather jacket",
+      "expected": {
+        "item_type": "jacket",
+        "color": "brown",
+        "material": "leather",
+        "formality": "casual",
+        "fit": "fitted",
+        "silhouette": "fitted",
+        "visual_weight": "heavy"
+      },
+      "tolerance": {
+        "color": [
+          "brown",
+          "dark brown",
+          "tan brown"
+        ],
+        "material": [
+          "leather",
+          "suede"
+        ],
+        "fit": [
+          "fitted",
+          "regular"
+        ],
+        "formality": [
+          "casual"
+        ]
+      }
+    },
+    {
+      "id": "khaki-chinos-business",
+      "image": "khaki-chinos-business.png",
+      "description": "Khaki business casual chinos",
+      "expected": {
+        "item_type": "chinos",
+        "color": "khaki",
+        "material": "cotton",
+        "formality": "business casual",
+        "fit": "regular",
+        "silhouette": "straight",
+        "visual_weight": "medium"
+      },
+      "tolerance": {
+        "color": [
+          "khaki",
+          "tan",
+          "beige"
+        ],
+        "material": [
+          "cotton",
+          "cotton blend"
+        ]
+      }
+    },
+    {
+      "id": "black-blazer-formal",
+      "image": "black-blazer-formal.png",
+      "description": "Black formal blazer",
+      "expected": {
+        "item_type": "blazer",
+        "color": "black",
+        "material": "wool",
+        "formality": "formal",
+        "fit": "fitted",
+        "silhouette": "fitted",
+        "visual_weight": "heavy"
+      },
+      "tolerance": {
+        "color": [
+          "black",
+          "charcoal"
+        ],
+        "material": [
+          "wool",
+          "wool blend"
+        ]
+      }
+    },
+    {
+      "id": "blue-jeans-casual",
+      "image": "blue-jeans-casual.png",
+      "description": "Blue denim jeans",
+      "expected": {
+        "item_type": "jeans",
+        "color": "blue",
+        "material": "denim",
+        "formality": "casual",
+        "fit": "regular",
+        "silhouette": "straight",
+        "visual_weight": "heavy"
+      },
+      "tolerance": {
+        "color": [
+          "blue",
+          "dark blue",
+          "navy"
+        ],
+        "material": [
+          "denim"
+        ]
+      }
+    },
+    {
+      "id": "red-dress-formal",
+      "image": "red-dress-formal.png",
+      "description": "Red formal dress",
+      "expected": {
+        "item_type": "dress",
+        "color": "red",
+        "material": "silk",
+        "formality": "formal",
+        "fit": "fitted",
+        "silhouette": "fitted",
+        "visual_weight": "medium"
+      },
+      "tolerance": {
+        "color": [
+          "red",
+          "bright red",
+          "crimson"
+        ],
+        "material": [
+          "silk",
+          "satin"
+        ]
+      }
+    },
+    {
+      "id": "white-blazer-with-jeans",
+      "image": "white-blazer-with-jeans.png",
+      "description": "white blazer",
+      "expected": {
+        "item_type": "blazer",
+        "color": "white",
+        "material": "cotton",
+        "formality": "business casual",
+        "fit": "regular",
+        "silhouette": "structured",
+        "visual_weight": "light"
+      },
+      "tolerance": {
+        "color": [
+          "white",
+          "cream",
+          "off-white",
+          "ivory"
+        ],
+        "material": [
+          "cotton",
+          "cotton blend",
+          "linen"
+        ],
+        "formality": [
+          "business casual",
+          "business"
+        ]
+      }
+    },
+    {
+      "id": "white-shirt-business",
+      "image": "white-shirt-business.png",
+      "description": "White business shirt",
+      "expected": {
+        "item_type": "button-up shirt",
+        "color": "white",
+        "material": "cotton",
+        "formality": "business",
+        "fit": "fitted",
+        "silhouette": "straight",
+        "visual_weight": "light"
+      },
+      "tolerance": {
+        "color": [
+          "white",
+          "off-white",
+          "ivory"
+        ],
+        "material": [
+          "cotton",
+          "cotton blend"
+        ]
+      }
+    },
+    {
+      "id": "tan-cardigan-casual",
+      "image": "tan-cardigan-casual.png",
+      "description": "Tan wool cardigan",
+      "expected": {
+        "item_type": "cardigan",
+        "color": "tan",
+        "material": "wool",
+        "formality": "casual",
+        "fit": "loose",
+        "silhouette": "oversized",
+        "visual_weight": "medium"
+      },
+      "tolerance": {
+        "color": [
+          "tan",
+          "beige",
+          "light brown"
+        ],
+        "material": [
+          "wool",
+          "wool blend"
+        ]
+      }
+    },
+    {
+      "id": "orange-shirt-casual",
+      "image": "orange-shirt-casual.png",
+      "description": "Orange casual shirt",
+      "expected": {
+        "item_type": "shirt",
+        "color": "orange",
+        "material": "cotton",
+        "formality": "casual",
+        "fit": "regular",
+        "silhouette": "straight",
+        "visual_weight": "medium"
+      },
+      "tolerance": {
+        "color": [
+          "orange",
+          "rust",
+          "burnt orange"
+        ],
+        "material": [
+          "cotton",
+          "cotton blend"
+        ]
+      }
+    },
+    {
+      "id": "cream-dress-formal",
+      "image": "cream-dress-formal.png",
+      "description": "Cream formal dress",
+      "expected": {
+        "item_type": "dress",
+        "color": "cream",
+        "material": "silk",
+        "formality": "formal",
+        "fit": "fitted",
+        "silhouette": "fitted",
+        "visual_weight": "medium"
+      },
+      "tolerance": {
+        "color": [
+          "cream",
+          "ivory",
+          "off-white"
+        ],
+        "material": [
+          "silk",
+          "satin"
+        ]
+      }
+    },
+    {
+      "id": "black-white-shirt-black-and-white-striped-shirt",
+      "image": "black-white-shirt.jpg",
+      "description": "- Black and White striped shirt",
+      "expected": {
+        "item_type": "shirt",
+        "color": "black and white",
+        "material": "cotton",
+        "formality": "casual",
+        "fit": "regular",
+        "silhouette": "straight",
+        "visual_weight": "light"
+      },
+      "tolerance": {
+        "color": [
+          "black and white"
+        ],
+        "material": [
+          "cotton"
+        ]
+      }
+    },
+    {
+      "id": "white-shirt-with-jeans-cream-button-up-shirt",
+      "image": "white-shirt-with-jeans.png",
+      "description": "- Cream button up shirt",
+      "expected": {
+        "item_type": "shirt",
+        "color": "cream",
+        "material": "cotton",
+        "formality": "business casual",
+        "fit": "regular",
+        "silhouette": "straight",
+        "visual_weight": "light"
+      },
+      "tolerance": {
+        "color": [
+          "cream"
+        ],
+        "material": [
+          "cotton"
+        ]
+      }
+    },
+    {
+      "id": "white-shirt-with-jeans-white-top-underneath",
+      "image": "white-shirt-with-jeans.png",
+      "description": "- White top underneath",
+      "expected": {
+        "item_type": "tshirt",
+        "color": "white",
+        "material": "cotton",
+        "formality": "casual",
+        "fit": "regular",
+        "silhouette": "straight",
+        "visual_weight": "light"
+      },
+      "tolerance": {
+        "color": [
+          "white"
+        ],
+        "material": [
+          "cotton"
+        ]
+      }
+    },
+    {
+      "id": "white-shirt-with-jeans-blue-jeans",
+      "image": "white-shirt-with-jeans.png",
+      "description": "- Blue Jeans",
+      "expected": {
+        "item_type": "jeans",
+        "color": "blue",
+        "material": "denim",
+        "formality": "casual",
+        "fit": "regular",
+        "silhouette": "straight",
+        "visual_weight": "medium"
+      },
+      "tolerance": {
+        "color": [
+          "blue"
+        ],
+        "material": [
+          "denim"
+        ]
+      }
+    },
+    {
+      "id": "white-shirt-with-jeans-black-ankle-boots",
+      "image": "white-shirt-with-jeans.png",
+      "description": "- Black Ankle Boots",
+      "expected": {
+        "item_type": "boots",
+        "color": "black",
+        "material": "leather",
+        "formality": "casual",
+        "fit": "regular",
+        "silhouette": "straight",
+        "visual_weight": "medium"
+      },
+      "tolerance": {
+        "color": [
+          "black"
+        ],
+        "material": [
+          "leather"
+        ]
+      }
+    },
+    {
+      "id": "white-shirt-with-jeans-brown-clutch",
+      "image": "white-shirt-with-jeans.png",
+      "description": "- Brown Clutch",
+      "expected": {
+        "item_type": "clutch",
+        "color": "brown",
+        "material": "leather",
+        "formality": "formal",
+        "fit": "fitted",
+        "silhouette": "structured",
+        "visual_weight": "medium"
+      },
+      "tolerance": {
+        "color": [
+          "brown"
+        ],
+        "material": [
+          "leather"
+        ]
+      }
+    },
+    {
+      "id": "white-shirt-with-jeans-glasses",
+      "image": "white-shirt-with-jeans.png",
+      "description": "- Glasses",
+      "expected": {
+        "item_type": "glasses",
+        "color": "black",
+        "material": "plastic",
+        "formality": "casual",
+        "fit": "regular",
+        "silhouette": "structured",
+        "visual_weight": "light"
+      },
+      "tolerance": {
+        "color": [
+          "black"
+        ],
+        "material": [
+          "plastic"
+        ]
+      }
+    },
+    {
+      "id": "red-sequin-shirt-red-sequin-shirt-with-a-pointed-collar",
+      "image": "red-sequin-shirt.png",
+      "description": "- Red sequin shirt with a pointed collar",
+      "expected": {
+        "item_type": "shirt",
+        "color": "red",
+        "material": "sequin",
+        "formality": "casual",
+        "fit": "regular",
+        "silhouette": "fitted",
+        "visual_weight": "heavy"
+      },
+      "tolerance": {
+        "color": [
+          "red"
+        ],
+        "material": [
+          "sequin"
+        ]
+      }
+    },
+    {
+      "id": "yellow-ribbed-dress-yellow-ribbed-long-sleeve-dress",
+      "image": "Yellow-ribbed-dress.jpg",
+      "description": "- Yellow ribbed long-sleeve dress",
+      "expected": {
+        "item_type": "dress",
+        "color": "mustard yellow",
+        "material": "ribbed knit",
+        "formality": "casual",
+        "fit": "fitted",
+        "silhouette": "straight",
+        "visual_weight": "medium"
+      },
+      "tolerance": {
+        "color": [
+          "mustard yellow"
+        ],
+        "material": [
+          "ribbed knit"
+        ]
+      }
+    },
+    {
+      "id": "yellow-ribbed-dress-colorful-sunglasses",
+      "image": "Yellow-ribbed-dress.jpg",
+      "description": "- Colorful sunglasses",
+      "expected": {
+        "item_type": "sunglasses",
+        "color": "multicolored",
+        "material": "plastic",
+        "formality": "casual",
+        "fit": "regular",
+        "silhouette": "oversized",
+        "visual_weight": "light"
+      },
+      "tolerance": {
+        "color": [
+          "multicolored"
+        ],
+        "material": [
+          "plastic"
+        ]
+      }
+    },
+    {
+      "id": "yellow-ribbed-dress-glittery-gray-ankle-boots",
+      "image": "Yellow-ribbed-dress.jpg",
+      "description": "- Glittery gray ankle boots",
+      "expected": {
+        "item_type": "ankle boots",
+        "color": "glittery grey",
+        "material": "felt",
+        "formality": "casual",
+        "fit": "fitted",
+        "silhouette": "structured",
+        "visual_weight": "medium"
+      },
+      "tolerance": {
+        "color": [
+          "glittery grey"
+        ],
+        "material": [
+          "felt"
+        ]
+      }
+    },
+    {
+      "id": "yellow-ribbed-dress-sheer-polka-dot-tights",
+      "image": "Yellow-ribbed-dress.jpg",
+      "description": "- Sheer polka dot tights",
+      "expected": {
+        "item_type": "tights",
+        "color": "sheer",
+        "material": "nylon",
+        "formality": "casual",
+        "fit": "fitted",
+        "silhouette": "fitted",
+        "visual_weight": "light"
+      },
+      "tolerance": {
+        "color": [
+          "sheer"
+        ],
+        "material": [
+          "nylon"
+        ]
+      }
+    },
+    {
+      "id": "white-shirt-beige-pant-white-button-up-shirt",
+      "image": "white-shirt-beige-pant.png",
+      "description": "- White button-up shirt",
+      "expected": {
+        "item_type": "shirt",
+        "color": "white",
+        "material": "linen",
+        "formality": "casual",
+        "fit": "loose",
+        "silhouette": "flowing",
+        "visual_weight": "light"
+      },
+      "tolerance": {
+        "color": [
+          "white"
+        ],
+        "material": [
+          "linen"
+        ]
+      }
+    },
+    {
+      "id": "white-shirt-beige-pant-beige-pant",
+      "image": "white-shirt-beige-pant.png",
+      "description": "- Beige Pant",
+      "expected": {
+        "item_type": "pants",
+        "color": "beige",
+        "material": "linen",
+        "formality": "casual",
+        "fit": "loose",
+        "silhouette": "straight",
+        "visual_weight": "light"
+      },
+      "tolerance": {
+        "color": [
+          "beige"
+        ],
+        "material": [
+          "linen"
+        ]
+      }
+    },
+    {
+      "id": "white-shirt-beige-pant-brown-shoes",
+      "image": "white-shirt-beige-pant.png",
+      "description": "- Brown Shoes",
+      "expected": {
+        "item_type": "shoes",
+        "color": "brown",
+        "material": "leather",
+        "formality": "casual",
+        "fit": "regular",
+        "silhouette": "straight",
+        "visual_weight": "medium"
+      },
+      "tolerance": {
+        "color": [
+          "brown"
+        ],
+        "material": [
+          "leather"
+        ]
+      }
+    },
+    {
+      "id": "white-shirt-beige-pant-sunglasses",
+      "image": "white-shirt-beige-pant.png",
+      "description": "- Sunglasses",
+      "expected": {
+        "item_type": "sunglasses",
+        "color": "brown",
+        "material": "plastic",
+        "formality": "casual",
+        "fit": "regular",
+        "silhouette": "straight",
+        "visual_weight": "medium"
+      },
+      "tolerance": {
+        "color": [
+          "brown"
+        ],
+        "material": [
+          "plastic"
+        ]
+      }
+    }
+  ]
+}

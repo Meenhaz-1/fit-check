@@ -1,96 +1,156 @@
-# AI Wardrobe Intelligence Assistant
+# AI Wardrobe Assistant
 
-An AI-powered wardrobe intelligence system that helps users make better clothing decisions.
+A Next.js full-stack application that uses OpenAI Vision API (gpt-4o) to extract detailed clothing metadata from images, with automated evaluation framework for accuracy testing.
 
-## Project Status: Phase 1 - Intelligence Validation MVP
+## MVP Status
 
-**Current Phase:** Sub-Phase 1a (Setup & Infrastructure)
-
-See [PHASE_1_BUILD_PLAN.md](PHASE_1_BUILD_PLAN.md) for the full roadmap.
+**Current Focus:** Metadata extraction accuracy evaluation and ground truth verification
 
 ---
 
 ## Quick Start
 
 ### Prerequisites
-- Node.js 20+ LTS
-- npm
+- Node.js 18+
+- Python 3.8+
 - OpenAI API key
 
 ### Setup
 
-1. **Clone/Install Dependencies**
+1. **Install dependencies**
    ```bash
    npm install
    ```
 
-2. **Configure Environment**
+2. **Configure environment**
    ```bash
-   cp .env.local.example .env.local
-   # Edit .env.local and add your OPENAI_API_KEY
+   # Create .env.local
+   OPENAI_API_KEY=sk_...your_key...
    ```
 
-3. **Create Directories**
-   ```bash
-   mkdir -p public/uploads data
-   ```
-
-4. **Start Development Server**
+3. **Run development server**
    ```bash
    npm run dev
    ```
+   Visit http://localhost:3000
 
-Visit: http://localhost:3000
+### Evaluate Accuracy
+
+```bash
+# Compare AI extraction against ground truth
+python tests/eval_extraction_accuracy.py
+```
+
+Results: `tests/fixtures/evaluation_report.txt`
 
 ---
 
 ## Project Structure
 
 ```
-├── src/
-│   ├── app/              # Next.js app (pages, layouts, API routes)
-│   ├── components/       # React components
-│   ├── lib/              # Utilities (db, OpenAI, etc.)
-│   └── types/            # TypeScript types
-├── __tests__/            # Test files
-├── public/uploads/       # User uploaded files (in .gitignore)
-├── data/wardrobe.db      # SQLite database (in .gitignore)
-├── PHASE_1_BUILD_PLAN.md # Detailed Phase 1 roadmap
-├── PHASE_1_CONFIG.md     # All design decisions documented
-└── README.md             # This file
+src/
+├── app/                      # Next.js app & API routes
+│   ├── api/wardrobe/        # Core endpoints (detect, upload, save)
+│   └── wardrobe/            # Pages
+├── components/              # React components
+├── lib/                     # Utility libraries
+│   ├── openai.ts           # OpenAI Vision API integration
+│   ├── metadata.ts         # Metadata extraction utilities
+│   ├── db.ts               # Data persistence
+│   ├── rateLimit.ts        # Rate limiting
+│   └── apiFetch.ts         # API client
+├── types/                  # TypeScript types
+└── middleware.ts           # Request middleware
+
+tests/
+├── eval_extraction_accuracy.py  # Evaluation framework
+└── fixtures/
+    ├── images/             # 19 test clothing items
+    ├── ground_truth.json   # Expected metadata values
+    └── evaluation_report.txt # Latest evaluation results
+
+docs/
+├── README.md               # Documentation index
+├── ARCHITECTURE.md         # Technical design
+├── API.md                 # API endpoints
+└── phase-1/               # Phase 1 reference docs
 ```
 
 ---
 
-## Key Technologies
+## Metadata Extraction
 
-- **Frontend:** Next.js 15, TypeScript, Tailwind CSS
-- **Backend:** Next.js API routes
-- **Database:** SQLite (local, file-based)
-- **AI:** OpenAI Vision & GPT models
-- **Testing:** Jest, React Testing Library
+AI extracts **7 fields** from clothing images:
+
+1. **item_type** - Clothing type (t-shirt, dress, jacket, etc.)
+2. **color** - Primary visible color
+3. **material** - Fabric type (cotton, silk, denim, wool, etc.)
+4. **formality** - Context (casual, business casual, business, formal)
+5. **fit** - Body fit (slim, regular, loose, fitted, oversized, tailored, relaxed)
+6. **silhouette** - Shape (straight, tapered, fitted, oversized, A-line, flowing, structured)
+7. **visual_weight** - Thickness (light, medium, heavy)
 
 ---
 
-## Development Commands
+## Evaluation Framework
+
+Automated testing that compares AI extraction against ground truth:
+
+- **27 test cases** with expected metadata values
+- **Tolerance-based matching** for subjective fields
+- **Field-by-field accuracy** breakdown
+- **Detailed reports** showing pass/fail per test
+
+Run evaluation:
+```bash
+python tests/eval_extraction_accuracy.py
+```
+
+---
+
+## Ground Truth Verification
+
+Evaluation accuracy depends on correct ground truth data:
+
+1. Download: `ground_truth_template.xlsx`
+2. Review test images in `tests/fixtures/images/`
+3. Fill in actual values for all 19 images
+4. Return Excel for import to `tests/fixtures/ground_truth.json`
+
+---
+
+## API Endpoints
+
+- `POST /api/wardrobe/upload` - Extract metadata from image
+- `POST /api/wardrobe/detect` - Detect clothing items
+- `POST /api/wardrobe/save` - Save to wardrobe
+- `GET /api/health` - Health check
+
+---
+
+## Technologies
+
+- **Framework:** Next.js 15, TypeScript
+- **AI:** OpenAI GPT-4o Vision API
+- **Styling:** Tailwind CSS
+- **Testing:** Python evaluation framework
+- **Database:** JSON-based (extensible)
+
+---
+
+## Development
 
 ```bash
-# Start development server (http://localhost:3000)
-npm run dev
-
-# Build for production
+# Build
 npm run build
 
-# Start production server
+# Production
 npm start
 
-# Run tests
-npm run test
+# Type check
+npm run type-check
 
-# Run tests in watch mode
-npm run test:watch
-
-# Lint code
+# Lint
 npm run lint
 ```
 
@@ -98,108 +158,30 @@ npm run lint
 
 ## Documentation
 
-- **[PHASE_1_TEST_PLAN.md](PHASE_1_TEST_PLAN.md)** — User testing strategy and success criteria
-- **[PHASE_1_BUILD_PLAN.md](PHASE_1_BUILD_PLAN.md)** — Sub-phases and development roadmap
-- **[PHASE_1_CONFIG.md](PHASE_1_CONFIG.md)** — All configuration decisions documented
-- **[PHASE_1A_README.md](PHASE_1A_README.md)** — Sub-Phase 1a specific instructions
-- **[PRD.md](PRD.md)** — Full product requirements document
-
----
-
-## Phase 1 Roadmap
-
-| Sub-Phase | Goal | Status |
-|-----------|------|--------|
-| **1a** | Setup & Infrastructure | 🔄 In Progress |
-| **1b** | Wardrobe Upload & Metadata | ⏳ Next |
-| **1c** | Screenshot Upload & Detection | ⏳ Planned |
-| **1d** | Recommendation Engine | ⏳ Planned |
-| **1e** | Testing & Iteration | ⏳ Planned |
-
-See [PHASE_1_BUILD_PLAN.md](PHASE_1_BUILD_PLAN.md) for details.
+- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** — Technical design & data flow
+- **[docs/API.md](docs/API.md)** — API endpoint documentation
+- **[docs/phase-1/](docs/phase-1/)** — Phase 1 development notes (reference)
 
 ---
 
 ## Configuration
 
-### Environment Variables
-
-Create `.env.local` (see `.env.local.example`):
-
-```env
-OPENAI_API_KEY=sk_...your_key...
-DATABASE_PATH=./data/wardrobe.db
-UPLOAD_DIR=./public/uploads
-NODE_ENV=development
-```
-
-### OpenAI API Setup
-
-1. Get API key: https://platform.openai.com/api-keys
-2. Add to `.env.local`
-3. Verify with: `curl http://localhost:3000/api/health`
+Build tools require these files in project root:
+- `tsconfig.json` - TypeScript
+- `next.config.js` - Next.js
+- `tailwind.config.ts` - Tailwind
+- `postcss.config.js` - PostCSS
+- `jest.config.js` - Jest
 
 ---
 
-## Testing
+## Environment Variables
 
-### Run Tests
-```bash
-npm run test
-```
+**Required:**
+- `OPENAI_API_KEY` - OpenAI API key
 
-### Expected Output
-```
-PASS  __tests__/setup.test.ts
-  ✓ should pass (placeholder test)
-  ✓ should have NODE_ENV set
-```
-
----
-
-## Troubleshooting
-
-### Port 3000 in Use
-```bash
-npm run dev -- -p 3001
-```
-
-### OpenAI API Errors
-- Verify API key is valid and active
-- Check usage limits: https://platform.openai.com/account/usage/overview
-- Ensure `.env.local` is properly formatted
-
-### Database Errors
-```bash
-# Reset database
-rm data/wardrobe.db
-npm run dev  # Will reinitialize on startup
-```
-
-### Module Not Found Errors
-```bash
-rm -rf node_modules .next
-npm install
-npm run dev
-```
-
----
-
-## Contributing
-
-This is a solo project in active development. All work follows [PHASE_1_BUILD_PLAN.md](PHASE_1_BUILD_PLAN.md).
-
----
-
-## Next Steps
-
-Once Sub-Phase 1a is complete:
-1. Start Sub-Phase 1b: Wardrobe Upload
-2. Implement wardrobe item upload flow
-3. Set up metadata extraction from AI
-4. Build verification UI for users
-
-See [PHASE_1_BUILD_PLAN.md](PHASE_1_BUILD_PLAN.md) for the full plan.
+**Optional:**
+- `NODE_ENV` - Set to 'production' for production builds
 
 ---
 

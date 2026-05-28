@@ -1,5 +1,7 @@
 'use client'
 
+import Link from 'next/link'
+
 export default function Home() {
   return (
     <div className="space-y-8">
@@ -13,7 +15,6 @@ export default function Home() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Wardrobe Upload */}
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
             1. Upload Wardrobe
@@ -22,17 +23,11 @@ export default function Home() {
             Add items from your wardrobe. AI will extract metadata (color,
             material, formality, fit).
           </p>
-          <button
-            onClick={() => {
-              alert('Sub-Phase 1b: Coming soon')
-            }}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
+          <Link href="/wardrobe" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 inline-block">
             Upload Items
-          </button>
+          </Link>
         </div>
 
-        {/* Screenshot Evaluation */}
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
             2. Evaluate Item
@@ -52,24 +47,23 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Phase Status */}
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-        <h3 className="text-lg font-bold text-yellow-900 mb-2">
-          Phase 1a: Setup & Infrastructure
+      <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+        <h3 className="text-lg font-bold text-green-900 mb-2">
+          Phase 1b: Wardrobe Upload & Metadata Extraction
         </h3>
-        <p className="text-yellow-800">
-          This is the infrastructure phase. User-facing features are coming in
-          Sub-Phases 1b-1e.
+        <p className="text-green-800">
+          Upload wardrobe items with AI-powered metadata extraction. Review and correct metadata before saving.
         </p>
-        <ul className="list-disc list-inside text-yellow-800 mt-2 space-y-1">
-          <li>✅ Next.js app initialized</li>
-          <li>✅ Database setup ready</li>
-          <li>✅ OpenAI integration ready</li>
-          <li>⏳ Sub-Phase 1b: Wardrobe Upload (Coming next)</li>
+        <ul className="list-disc list-inside text-green-800 mt-2 space-y-1">
+          <li>✅ Phase 1a: Setup & Infrastructure complete</li>
+          <li>✅ File upload handler ready</li>
+          <li>✅ OpenAI Vision integration ready</li>
+          <li>✅ Metadata extraction endpoint live</li>
+          <li>✅ Wardrobe page with UI ready</li>
+          <li>⏳ Sub-Phase 1c: Screenshot Upload & Item Detection (Next)</li>
         </ul>
       </div>
 
-      {/* Development Info */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
         <h3 className="text-lg font-bold text-blue-900 mb-2">
           Development Notes
