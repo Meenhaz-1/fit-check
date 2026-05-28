@@ -31,9 +31,7 @@ body {
   font-family: var(--font-fredoka), sans-serif;
 }
 
-* {
-  @apply border-border;
-}
+/* Reset default styles */
 
 button {
   @apply transition-all duration-300;
