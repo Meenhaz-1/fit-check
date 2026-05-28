@@ -234,11 +234,11 @@ ${wardrobeItemsList}
 
 CRITICAL CONSTRAINTS:
 1. EXCLUDE items that are the same type as the uploaded item (e.g., don't suggest another shirt for a shirt)
-2. EXCLUDE complete outfits that replace the item:
-   - If uploaded item is a TOP (shirt, t-shirt, blouse, sweater, etc): DO NOT suggest dresses or skirts
-   - If uploaded item is a DRESS: DO NOT suggest other tops/shirts/blouses
+2. EXCLUDE complete outfit replacements (only dresses replace tops):
+   - If uploaded item is a TOP (shirt, t-shirt, blouse, sweater, etc): DO NOT suggest dresses (but skirts, pants, jackets are welcome)
+   - If uploaded item is a DRESS: DO NOT suggest other tops/shirts/blouses (dress already serves as the top)
 3. Suggest COMPLEMENTARY item types that would be worn TOGETHER with the uploaded item
-- Examples: with shirt→pants/jacket/shoes; with pants→shirt/jacket; with dress→shoes/jacket/accessories
+- Examples: with shirt→skirts/pants/jacket/shoes; with pants→shirt/jacket; with dress→shoes/jacket/accessories
 
 ANALYSIS CRITERIA:
 1. Color harmony (complementary, monochromatic, analogous)
@@ -334,10 +334,10 @@ Suggest 3 generic clothing items (complementary types, NOT the same type or comp
 
 CRITICAL CONSTRAINTS:
 - Do NOT suggest another ${uploadedItemAnalysis.item_type || 'item of the same type'}
-- If item is a TOP (shirt, t-shirt, blouse, sweater): Do NOT suggest dresses or standalone skirts
-- If item is a DRESS: Do NOT suggest other tops or blouses
+- If item is a TOP (shirt, t-shirt, blouse, sweater): Do NOT suggest dresses (but skirts, pants, jackets are welcome)
+- If item is a DRESS: Do NOT suggest other tops or blouses (dress already serves as the top)
 - Suggest only items that would be worn TOGETHER in the same outfit
-Examples: with shirt→pants/jacket/shoes; with pants→shirt/jacket; with dress→shoes/jacket/accessories
+Examples: with shirt→skirts/pants/jacket/shoes; with pants→shirt/jacket; with dress→shoes/jacket/accessories
 
 Consider color harmony, formality matching, and style compatibility.
 
