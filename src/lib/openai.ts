@@ -240,23 +240,28 @@ CRITICAL CONSTRAINTS:
 3. Suggest COMPLEMENTARY item types that would be worn TOGETHER with the uploaded item
 - Examples: with shirt→skirts/pants/jacket/shoes; with pants→shirt/jacket; with dress→shoes/jacket/accessories
 
-ANALYSIS CRITERIA:
-1. Color harmony (complementary, monochromatic, analogous)
-2. Formality level matching
-3. Style compatibility (material, silhouette, visual weight)
-4. Overall outfit cohesion
-5. Item type complementarity (different categories that work together)
+ANALYSIS CRITERIA (must reference in reasoning):
+1. Color harmony - how the suggested item's color works with the red and white plaid pattern
+2. Formality level matching - ensure casual item pairs with casual shirt
+3. Style compatibility - how material, silhouette, visual weight align with the cotton, straight, light weight shirt
+4. Fit harmony - how the suggested item's fit complements the regular fit shirt
+5. Overall outfit cohesion - create a visually balanced complete look
+
+REASONING REQUIREMENTS:
+- MUST mention specific properties from the uploaded item (plaid pattern, cotton, straight silhouette, light weight, casual, regular fit)
+- MUST explain HOW the suggested item complements these specific properties
+- Example: "The dark blue slim jeans complement the red and white plaid pattern while the cotton denim matches the shirt's casual cotton aesthetic"
 
 Return a JSON array of suggestions in this exact format. YOU MUST return ALL matching items with different types:
 [
   {
     "item_index": 0,
-    "reason": "Explanation of why this pairs well",
+    "reason": "Specific explanation referencing the shirt's properties (plaid, cotton, straight, light, casual, regular fit)",
     "matchScore": 85
   },
   {
     "item_index": 1,
-    "reason": "Explanation of why this pairs well",
+    "reason": "Specific explanation referencing the shirt's properties",
     "matchScore": 75
   }
 ]
@@ -342,21 +347,26 @@ Examples: with blouse→pants/skirt/jacket/heels; with pants→blouse/jacket; wi
 
 Consider color harmony, formality matching, style compatibility, and appropriateness for women's fashion.
 
+REASONING REQUIREMENTS:
+- MUST mention specific properties from the uploaded item (color, material, silhouette, visual weight, fit, formality)
+- MUST explain HOW the suggested item complements these properties
+- Example for red shirt: "The dark blue jeans complement the red color while the regular fit matches the shirt's straight silhouette for visual cohesion"
+
 Return ONLY valid JSON, no markdown, in this format (include fit for pants/jeans):
 [
   {
     "item_type": "dark blue slim jeans",
-    "reason": "Complements the color and creates casual contrast",
+    "reason": "The dark blue creates color harmony with the red while the slim fit complements the shirt's straight silhouette and casual cotton aesthetic",
     "matchScore": 80
   },
   {
-    "item_type": "white fitted shirt",
-    "reason": "Provides neutral pairing for a balanced look",
+    "item_type": "light brown blazer",
+    "reason": "Adds layering to balance the light visual weight while maintaining the casual formality of the cotton shirt",
     "matchScore": 75
   },
   {
-    "item_type": "black pointed-toe heels",
-    "reason": "Grounds the outfit and adds visual interest",
+    "item_type": "white canvas sneakers",
+    "reason": "Echoes the white tones in the pattern while the casual sneaker style matches the shirt's relaxed straight fit",
     "matchScore": 70
   }
 ]`,
