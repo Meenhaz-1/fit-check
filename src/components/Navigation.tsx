@@ -38,7 +38,17 @@ export function Navigation() {
                   : 'text-text-secondary hover:text-text-primary'
               }`}
             >
-              ✨ My Items
+              📸 Upload
+            </Link>
+            <Link
+              href="/wardrobe/gallery"
+              className={`font-medium transition-all duration-300 ${
+                isActive('/wardrobe/gallery')
+                  ? 'text-primary-hot border-b-2 border-primary-hot'
+                  : 'text-text-secondary hover:text-text-primary'
+              }`}
+            >
+              👗 Gallery
             </Link>
           </div>
         </div>
