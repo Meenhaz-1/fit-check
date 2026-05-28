@@ -199,13 +199,18 @@ export async function suggestPairings(
   wardrobeItems: Array<Record<string, unknown>>
 ): Promise<Array<{ item: Record<string, unknown>; reason: string; matchScore: number }>> {
   try {
+    console.log(`[suggestPairings] Received ${wardrobeItems.length} wardrobe items`)
+
     if (wardrobeItems.length === 0) {
+      console.log('[suggestPairings] No wardrobe items, using generic suggestions')
       return getGenericPairingSuggestions(uploadedItemAnalysis)
     }
 
     const wardrobeItemsList = wardrobeItems
-      .map((item) => `- ${item.color} ${item.item_type || 'item'} (${item.formality}, ${item.material})`)
+      .map((item, idx) => `${idx}: ${item.color} ${item.item_type || 'item'} (${item.formality}, ${item.material})`)
       .join('\n')
+
+    console.log('[suggestPairings] Wardrobe items list:\n', wardrobeItemsList)
 
     const response = await client.chat.completions.create({
       model: 'gpt-4o',
@@ -224,7 +229,7 @@ UPLOADED ITEM ANALYSIS:
 - Silhouette: ${uploadedItemAnalysis.silhouette}
 - Visual Weight: ${uploadedItemAnalysis.visual_weight}
 
-WARDROBE ITEMS TO MATCH AGAINST:
+WARDROBE ITEMS TO MATCH AGAINST (indexed 0-${wardrobeItems.length - 1}):
 ${wardrobeItemsList}
 
 ANALYSIS CRITERIA:
@@ -233,40 +238,61 @@ ANALYSIS CRITERIA:
 3. Style compatibility (material, silhouette, visual weight)
 4. Overall outfit cohesion
 
-Return a JSON array of suggestions in this exact format:
+Return a JSON array of suggestions in this exact format. YOU MUST return ALL matching items:
 [
   {
     "item_index": 0,
     "reason": "Explanation of why this pairs well",
     "matchScore": 85
+  },
+  {
+    "item_index": 1,
+    "reason": "Explanation of why this pairs well",
+    "matchScore": 75
   }
 ]
 
-Only include items with matchScore >= 60. Sort by matchScore descending.
+Include ALL items with matchScore >= 50. Sort by matchScore descending.
 Return ONLY valid JSON, no markdown, no text before or after.`,
         },
       ],
     })
 
     const content = response.choices[0]?.message?.content
+    console.log('[suggestPairings] Raw GPT response:', content?.substring(0, 200))
+
     if (typeof content === 'string') {
       try {
-        const suggestions = JSON.parse(content)
-        return suggestions.map(
+        // Strip markdown code blocks if present
+        let jsonContent = content.trim()
+        if (jsonContent.startsWith('```json')) {
+          jsonContent = jsonContent.replace(/^```json\s*/, '').replace(/\s*```$/, '')
+        } else if (jsonContent.startsWith('```')) {
+          jsonContent = jsonContent.replace(/^```\s*/, '').replace(/\s*```$/, '')
+        }
+
+        const suggestions = JSON.parse(jsonContent)
+        console.log('[suggestPairings] Parsed suggestions:', suggestions.length, 'items')
+
+        const result = suggestions.map(
           (s: { item_index: number; reason: string; matchScore: number }) => ({
             item: wardrobeItems[s.item_index],
             reason: s.reason,
             matchScore: s.matchScore,
           })
         )
-      } catch {
+        console.log('[suggestPairings] Returning', result.length, 'wardrobe-based suggestions')
+        return result
+      } catch (parseError) {
+        console.error('[suggestPairings] JSON parse error:', parseError, 'Content:', content?.substring(0, 300))
         return getGenericPairingSuggestions(uploadedItemAnalysis)
       }
     }
 
+    console.log('[suggestPairings] No content from GPT response')
     return getGenericPairingSuggestions(uploadedItemAnalysis)
   } catch (error) {
-    console.error('Pairing suggestion failed:', error)
+    console.error('[suggestPairings] Error:', error)
     throw error
   }
 }
