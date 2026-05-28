@@ -15,6 +15,7 @@ interface WardrobeItem {
   silhouette: string
   visual_weight: string
   uploaded_at: string
+  imageUrl?: string
 }
 
 const formalityColors: Record<string, { bg: string; border: string; emoji: string }> = {
@@ -167,10 +168,20 @@ export default function WardrobeGallery() {
                       borderColor: item.color || '#FF6B9D',
                     }}
                   >
-                    {/* Item image placeholder */}
-                    <div className={`w-full aspect-square ${colors.bg} flex items-center justify-center text-6xl`}>
-                      👗
-                    </div>
+                    {/* Item image */}
+                    {item.imageUrl ? (
+                      <div className="w-full aspect-square overflow-hidden bg-gray-100">
+                        <img
+                          src={item.imageUrl}
+                          alt={item.item_type}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className={`w-full aspect-square ${colors.bg} flex items-center justify-center text-6xl`}>
+                        👗
+                      </div>
+                    )}
 
                     {/* Item details */}
                     <div className="p-4">

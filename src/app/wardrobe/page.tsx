@@ -18,6 +18,7 @@ interface MetadataFormState {
 export default function WardrobePage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [mediaType, setMediaType] = useState<string | null>(null)
   const [metadata, setMetadata] = useState<MetadataFormState | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -44,6 +45,7 @@ export default function WardrobePage() {
     reader.onload = async (e) => {
       const base64 = e.target?.result as string
       setImagePreview(base64)
+      setMediaType(file.type || 'image/jpeg')
 
       setMetadata({
         filename: file.name,
@@ -140,7 +142,11 @@ export default function WardrobePage() {
     try {
       const response = await apiFetch('/api/wardrobe/save', {
         method: 'POST',
-        body: JSON.stringify(metadata),
+        body: JSON.stringify({
+          ...metadata,
+          image: imagePreview,
+          mediaType: mediaType || 'image/jpeg',
+        }),
       })
 
       const data = await response.json()
@@ -152,6 +158,7 @@ export default function WardrobePage() {
       setSuccess('🎉 Boom! Item saved!')
       setTimeout(() => {
         setImagePreview(null)
+        setMediaType(null)
         setMetadata(null)
         setDetectedItems([])
         setSelectedItem('')
@@ -448,6 +455,7 @@ export default function WardrobePage() {
                     <button
                       onClick={() => {
                         setImagePreview(null)
+                        setMediaType(null)
                         setMetadata(null)
                         setDetectedItems([])
                         setSelectedItem('')

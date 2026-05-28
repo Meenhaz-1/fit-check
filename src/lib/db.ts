@@ -13,6 +13,7 @@ interface WardrobeItem {
   silhouette: string
   visual_weight: string
   uploaded_at: string
+  imageUrl?: string
 }
 
 interface Evaluation {
@@ -53,6 +54,7 @@ function loadSampleWardrobe() {
         silhouette: row.silhouette,
         visual_weight: row.visual_weight,
         uploaded_at: row.uploaded_at || new Date().toISOString(),
+        imageUrl: row.imageUrl,
       }))
       console.log(`Loaded ${store.wardrobe_items.length} wardrobe items from CSV`)
     }
