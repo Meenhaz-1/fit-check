@@ -232,10 +232,13 @@ UPLOADED ITEM ANALYSIS:
 WARDROBE ITEMS TO MATCH AGAINST (indexed 0-${wardrobeItems.length - 1}):
 ${wardrobeItemsList}
 
-CRITICAL CONSTRAINT:
-- EXCLUDE items that are the same type as the uploaded item (e.g., don't suggest another shirt for a shirt)
-- Suggest COMPLEMENTARY item types that would be worn TOGETHER with the uploaded item
-- Examples: with shirt→pants/skirt/jacket; with pants→shirt/jacket; with dress→shoes/jacket
+CRITICAL CONSTRAINTS:
+1. EXCLUDE items that are the same type as the uploaded item (e.g., don't suggest another shirt for a shirt)
+2. EXCLUDE complete outfits that replace the item:
+   - If uploaded item is a TOP (shirt, t-shirt, blouse, sweater, etc): DO NOT suggest dresses or skirts
+   - If uploaded item is a DRESS: DO NOT suggest other tops/shirts/blouses
+3. Suggest COMPLEMENTARY item types that would be worn TOGETHER with the uploaded item
+- Examples: with shirt→pants/jacket/shoes; with pants→shirt/jacket; with dress→shoes/jacket/accessories
 
 ANALYSIS CRITERIA:
 1. Color harmony (complementary, monochromatic, analogous)
@@ -327,10 +330,14 @@ UPLOADED ITEM:
 - Silhouette: ${uploadedItemAnalysis.silhouette}
 - Visual Weight: ${uploadedItemAnalysis.visual_weight}
 
-Suggest 3 generic clothing items (complementary types, NOT the same type as the uploaded item) that would pair well.
+Suggest 3 generic clothing items (complementary types, NOT the same type or complete outfit replacements) that would pair well.
 
-CRITICAL: Do NOT suggest another ${uploadedItemAnalysis.item_type || 'item of the same type'} - suggest different item types that work with it.
-Examples: with shirt→pants/skirt/jacket/shoes; with pants→shirt/jacket/shoes; with dress→shoes/jacket/accessories.
+CRITICAL CONSTRAINTS:
+- Do NOT suggest another ${uploadedItemAnalysis.item_type || 'item of the same type'}
+- If item is a TOP (shirt, t-shirt, blouse, sweater): Do NOT suggest dresses or standalone skirts
+- If item is a DRESS: Do NOT suggest other tops or blouses
+- Suggest only items that would be worn TOGETHER in the same outfit
+Examples: with shirt→pants/jacket/shoes; with pants→shirt/jacket; with dress→shoes/jacket/accessories
 
 Consider color harmony, formality matching, and style compatibility.
 
