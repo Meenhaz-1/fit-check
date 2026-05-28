@@ -14,7 +14,7 @@ export default function Home() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
             1. Upload Wardrobe
@@ -30,7 +30,19 @@ export default function Home() {
 
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            2. Evaluate Item
+            2. Suggest Pairing
+          </h2>
+          <p className="text-gray-600 mb-4">
+            Upload a clothing item and get AI-powered suggestions for what pairs well with it.
+          </p>
+          <Link href="/wardrobe/suggest-pairing" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 inline-block">
+            Find Pairings
+          </Link>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            3. Evaluate Item
           </h2>
           <p className="text-gray-600 mb-4">
             Upload a screenshot or photo of an item. AI will recommend wardrobe

@@ -9,46 +9,46 @@ export function Navigation() {
   const isActive = (path: string) => pathname === path
 
   return (
-    <nav className="bg-white border-b-2 border-primary-hot/10 sticky top-0 z-50 shadow-sm">
-      <div className="max-w-7xl mx-auto px-6 py-4">
+    <nav className="bg-white border-b border-divider sticky top-0 z-50">
+      <div className="max-w-6xl mx-auto px-6 py-4">
         <div className="flex justify-between items-center">
           <Link
             href="/"
-            className="font-display text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent hover:opacity-80 transition-opacity"
+            className="text-xl font-bold text-primary hover:text-primary-dark transition-colors"
           >
-            👗 Wardrobe
+            Wardrobe
           </Link>
 
-          <div className="flex gap-8">
+          <div className="flex gap-12">
             <Link
               href="/"
-              className={`font-medium transition-all duration-300 ${
+              className={`text-sm font-medium transition-colors duration-150 ${
                 isActive('/')
-                  ? 'text-primary-hot border-b-2 border-primary-hot'
-                  : 'text-text-secondary hover:text-text-primary'
+                  ? 'text-primary border-b-2 border-primary'
+                  : 'text-text-secondary hover:text-primary'
               }`}
             >
-              🏠 Home
+              Home
             </Link>
             <Link
               href="/wardrobe"
-              className={`font-medium transition-all duration-300 ${
+              className={`text-sm font-medium transition-colors duration-150 ${
                 isActive('/wardrobe')
-                  ? 'text-primary-hot border-b-2 border-primary-hot'
-                  : 'text-text-secondary hover:text-text-primary'
+                  ? 'text-primary border-b-2 border-primary'
+                  : 'text-text-secondary hover:text-primary'
               }`}
             >
-              📸 Upload
+              Upload
             </Link>
             <Link
               href="/wardrobe/gallery"
-              className={`font-medium transition-all duration-300 ${
+              className={`text-sm font-medium transition-colors duration-150 ${
                 isActive('/wardrobe/gallery')
-                  ? 'text-primary-hot border-b-2 border-primary-hot'
-                  : 'text-text-secondary hover:text-text-primary'
+                  ? 'text-primary border-b-2 border-primary'
+                  : 'text-text-secondary hover:text-primary'
               }`}
             >
-              👗 Gallery
+              Gallery
             </Link>
           </div>
         </div>

@@ -14,16 +14,37 @@ const config: Config = {
         display: ['Fredoka', ...defaultTheme.fontFamily.sans],
       },
       colors: {
-        'primary-hot': '#FF6B9D',
-        'primary-warm': '#FFB84D',
-        'primary-joy': '#6C5CE7',
-        'bg-primary': '#FEFAF2',
-        'bg-secondary': '#F5F0E8',
-        'bg-dark': '#2C2C2C',
-        'text-primary': '#2C2C2C',
-        'text-secondary': '#6B6B6B',
-        'success': '#00D4AA',
-        'warning': '#FFB84D',
+        // Premium charcoal + teal (magazine aesthetic)
+        'primary': '#1F2937',
+        'primary-dark': '#111827',
+        'accent': '#0D9488',
+        'accent-dark': '#0F766E',
+        'accent-light': '#CCFBF1',
+
+        // Text colors
+        'text-primary': '#1F2937',
+        'text-secondary': '#6B7280',
+        'text-tertiary': '#9CA3AF',
+
+        // Surface colors
+        'surface-base': '#FFFFFF',
+        'surface-elevated': '#FAFBFC',
+        'surface-hover': '#F3F4F6',
+
+        // Semantic
+        'success': '#059669',
+        'error': '#DC2626',
+        'warning': '#B45309',
+        'error-bg': '#FEE2E2',
+
+        // Borders & dividers
+        'divider': '#E5E7EB',
+        'border': '#D1D5DB',
+
+        // Legacy (kept for backwards compatibility, will deprecate)
+        'primary-hot': '#0D9488',
+        'primary-warm': '#1F2937',
+        'primary-joy': '#6B7280',
       },
       backgroundImage: {
         'gradient-primary': 'linear-gradient(135deg, #FF6B9D 0%, #FFB84D 100%)',

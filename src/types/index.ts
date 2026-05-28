@@ -26,6 +26,33 @@ export interface EvaluationPairing {
   explanation: string
 }
 
+export interface Suggestion {
+  item: WardrobeItem
+  reason: string
+  matchScore: number
+}
+
+export interface SuggestPairingRequest {
+  image: string
+  mediaType?: string
+}
+
+export interface SuggestPairingResponse {
+  success: boolean
+  uploadedItem?: {
+    detected_type: string
+    color: string
+    formality: string
+    material: string
+    fit: string
+    silhouette: string
+    visual_weight: string
+  }
+  suggestions?: Suggestion[]
+  error?: string
+  timestamp: string
+}
+
 export interface ApiSuccessResponse<T> {
   success: true
   data: T

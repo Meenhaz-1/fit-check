@@ -194,4 +194,118 @@ function parseMetadataFromText(text: string): Record<string, string> {
   return metadata
 }
 
+export async function suggestPairings(
+  uploadedItemAnalysis: Record<string, string>,
+  wardrobeItems: Array<Record<string, unknown>>
+): Promise<Array<{ item: Record<string, unknown>; reason: string; matchScore: number }>> {
+  try {
+    if (wardrobeItems.length === 0) {
+      return getGenericPairingSuggestions(uploadedItemAnalysis)
+    }
+
+    const wardrobeItemsList = wardrobeItems
+      .map((item) => `- ${item.color} ${item.item_type || 'item'} (${item.formality}, ${item.material})`)
+      .join('\n')
+
+    const response = await client.chat.completions.create({
+      model: 'gpt-4o',
+      max_tokens: 1024,
+      messages: [
+        {
+          role: 'user',
+          content: `You are a fashion stylist analyzing wardrobe pairing compatibility.
+
+UPLOADED ITEM ANALYSIS:
+- Type: ${uploadedItemAnalysis.detected_type || uploadedItemAnalysis.item_type || 'unknown'}
+- Color: ${uploadedItemAnalysis.color}
+- Material: ${uploadedItemAnalysis.material}
+- Formality: ${uploadedItemAnalysis.formality}
+- Fit: ${uploadedItemAnalysis.fit}
+- Silhouette: ${uploadedItemAnalysis.silhouette}
+- Visual Weight: ${uploadedItemAnalysis.visual_weight}
+
+WARDROBE ITEMS TO MATCH AGAINST:
+${wardrobeItemsList}
+
+ANALYSIS CRITERIA:
+1. Color harmony (complementary, monochromatic, analogous)
+2. Formality level matching
+3. Style compatibility (material, silhouette, visual weight)
+4. Overall outfit cohesion
+
+Return a JSON array of suggestions in this exact format:
+[
+  {
+    "item_index": 0,
+    "reason": "Explanation of why this pairs well",
+    "matchScore": 85
+  }
+]
+
+Only include items with matchScore >= 60. Sort by matchScore descending.
+Return ONLY valid JSON, no markdown, no text before or after.`,
+        },
+      ],
+    })
+
+    const content = response.choices[0]?.message?.content
+    if (typeof content === 'string') {
+      try {
+        const suggestions = JSON.parse(content)
+        return suggestions.map(
+          (s: { item_index: number; reason: string; matchScore: number }) => ({
+            item: wardrobeItems[s.item_index],
+            reason: s.reason,
+            matchScore: s.matchScore,
+          })
+        )
+      } catch {
+        return getGenericPairingSuggestions(uploadedItemAnalysis)
+      }
+    }
+
+    return getGenericPairingSuggestions(uploadedItemAnalysis)
+  } catch (error) {
+    console.error('Pairing suggestion failed:', error)
+    throw error
+  }
+}
+
+function getGenericPairingSuggestions(
+  uploadedItemAnalysis: Record<string, string>
+): Array<{ item: Record<string, unknown>; reason: string; matchScore: number }> {
+  const color = uploadedItemAnalysis.color || 'this color'
+  const formality = uploadedItemAnalysis.formality || 'casual'
+
+  const colorPairs: Record<string, string[]> = {
+    red: ['navy', 'white', 'cream', 'black', 'gray'],
+    navy: ['white', 'cream', 'khaki', 'red', 'gray'],
+    white: ['any color', 'navy', 'black', 'gray', 'earth tones'],
+    black: ['white', 'gray', 'navy', 'red', 'gold accents'],
+    gray: ['white', 'navy', 'black', 'any color'],
+    cream: ['navy', 'brown', 'gray', 'white', 'pastels'],
+  }
+
+  const getColorKey = (c: string): string => Object.keys(colorPairs).find((k) => c.toLowerCase().includes(k)) || 'navy'
+  const pairedColors = colorPairs[getColorKey(color)] || ['navy', 'white', 'gray']
+
+  return [
+    {
+      item: { color: pairedColors[0], item_type: 'complement item', formality },
+      reason: `${pairedColors[0]} is a complementary color to ${color} and matches ${formality} formality level`,
+      matchScore: 75,
+    },
+    {
+      item: { color: pairedColors[1], item_type: 'neutral item', formality },
+      reason: `${pairedColors[1]} is a neutral that pairs well with any ${color} item`,
+      matchScore: 70,
+    },
+    {
+      item: { color: pairedColors[2], item_type: 'versatile item', formality },
+      reason: `${pairedColors[2]} is versatile and works across multiple formality levels`,
+      matchScore: 65,
+    },
+  ]
+}
+
 export { client }
