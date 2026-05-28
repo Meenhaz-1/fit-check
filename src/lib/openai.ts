@@ -232,13 +232,19 @@ UPLOADED ITEM ANALYSIS:
 WARDROBE ITEMS TO MATCH AGAINST (indexed 0-${wardrobeItems.length - 1}):
 ${wardrobeItemsList}
 
+CRITICAL CONSTRAINT:
+- EXCLUDE items that are the same type as the uploaded item (e.g., don't suggest another shirt for a shirt)
+- Suggest COMPLEMENTARY item types that would be worn TOGETHER with the uploaded item
+- Examples: with shirt→pants/skirt/jacket; with pants→shirt/jacket; with dress→shoes/jacket
+
 ANALYSIS CRITERIA:
 1. Color harmony (complementary, monochromatic, analogous)
 2. Formality level matching
 3. Style compatibility (material, silhouette, visual weight)
 4. Overall outfit cohesion
+5. Item type complementarity (different categories that work together)
 
-Return a JSON array of suggestions in this exact format. YOU MUST return ALL matching items:
+Return a JSON array of suggestions in this exact format. YOU MUST return ALL matching items with different types:
 [
   {
     "item_index": 0,
@@ -253,6 +259,7 @@ Return a JSON array of suggestions in this exact format. YOU MUST return ALL mat
 ]
 
 Include ALL items with matchScore >= 50. Sort by matchScore descending.
+IMPORTANT: Do NOT include items of the same type as the uploaded item.
 Return ONLY valid JSON, no markdown, no text before or after.`,
         },
       ],
@@ -320,7 +327,12 @@ UPLOADED ITEM:
 - Silhouette: ${uploadedItemAnalysis.silhouette}
 - Visual Weight: ${uploadedItemAnalysis.visual_weight}
 
-Suggest 3 generic clothing items (not specific colors, but actual clothing types) that would pair well. Consider color harmony, formality matching, and style compatibility.
+Suggest 3 generic clothing items (complementary types, NOT the same type as the uploaded item) that would pair well.
+
+CRITICAL: Do NOT suggest another ${uploadedItemAnalysis.item_type || 'item of the same type'} - suggest different item types that work with it.
+Examples: with shirt→pants/skirt/jacket/shoes; with pants→shirt/jacket/shoes; with dress→shoes/jacket/accessories.
+
+Consider color harmony, formality matching, and style compatibility.
 
 Return ONLY valid JSON, no markdown, in this format:
 [
