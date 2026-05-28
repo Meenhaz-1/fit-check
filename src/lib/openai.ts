@@ -336,10 +336,11 @@ CRITICAL CONSTRAINTS:
 - Do NOT suggest another ${uploadedItemAnalysis.item_type || 'item of the same type'}
 - If item is a TOP (shirt, t-shirt, blouse, sweater): Do NOT suggest dresses (but skirts, pants, jackets are welcome)
 - If item is a DRESS: Do NOT suggest other tops or blouses (dress already serves as the top)
+- For shoes: suggest women's-appropriate footwear like flats, heels, pumps, ankle boots, pointed-toe shoes (avoid loafers for women's fashion)
 - Suggest only items that would be worn TOGETHER in the same outfit
-Examples: with shirt→skirts/pants/jacket/shoes; with pants→shirt/jacket; with dress→shoes/jacket/accessories
+Examples: with blouse→pants/skirt/jacket/heels; with pants→blouse/jacket; with dress→heels/jacket/accessories
 
-Consider color harmony, formality matching, and style compatibility.
+Consider color harmony, formality matching, style compatibility, and appropriateness for women's fashion.
 
 Return ONLY valid JSON, no markdown, in this format:
 [
