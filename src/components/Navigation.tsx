@@ -1,33 +1,44 @@
+'use client'
+
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 export function Navigation() {
+  const pathname = usePathname()
+
+  const isActive = (path: string) => pathname === path
+
   return (
-    <nav className="border-b border-gray-200 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center">
-            <Link href="/" className="text-2xl font-bold text-blue-600">
-              Wardrobe AI
-            </Link>
-          </div>
-          <div className="hidden md:flex space-x-8">
+    <nav className="bg-white border-b-2 border-primary-hot/10 sticky top-0 z-50 shadow-sm">
+      <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="flex justify-between items-center">
+          <Link
+            href="/"
+            className="font-display text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent hover:opacity-80 transition-opacity"
+          >
+            👗 Wardrobe
+          </Link>
+
+          <div className="flex gap-8">
             <Link
               href="/"
-              className="text-gray-700 hover:text-blue-600 transition"
+              className={`font-medium transition-all duration-300 ${
+                isActive('/')
+                  ? 'text-primary-hot border-b-2 border-primary-hot'
+                  : 'text-text-secondary hover:text-text-primary'
+              }`}
             >
-              Home
+              🏠 Home
             </Link>
             <Link
               href="/wardrobe"
-              className="text-gray-700 hover:text-blue-600 transition"
+              className={`font-medium transition-all duration-300 ${
+                isActive('/wardrobe')
+                  ? 'text-primary-hot border-b-2 border-primary-hot'
+                  : 'text-text-secondary hover:text-text-primary'
+              }`}
             >
-              Wardrobe
-            </Link>
-            <Link
-              href="/evaluate"
-              className="text-gray-700 hover:text-blue-600 transition"
-            >
-              Evaluate
+              ✨ My Items
             </Link>
           </div>
         </div>

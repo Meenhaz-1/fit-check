@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import type { ExtractedMetadata } from '@/lib/metadata'
 import { apiFetch } from '@/lib/apiFetch'
 
@@ -24,6 +24,14 @@ export default function WardrobePage() {
   const [success, setSuccess] = useState<string | null>(null)
   const [detectedItems, setDetectedItems] = useState<string[]>([])
   const [selectedItem, setSelectedItem] = useState<string>('')
+  const [extracting, setExtracting] = useState(false)
+  const [formFields, setFormFields] = useState<string[]>([])
+
+  useEffect(() => {
+    if (metadata) {
+      setFormFields(['item_type', 'color', 'material', 'formality', 'fit', 'silhouette', 'visual_weight'])
+    }
+  }, [metadata])
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -34,19 +42,16 @@ export default function WardrobePage() {
     setDetectedItems([])
     setSelectedItem('')
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       setError('Please select a valid image file')
       return
     }
 
-    // Create preview
     const reader = new FileReader()
     reader.onload = async (e) => {
       const base64 = e.target?.result as string
       setImagePreview(base64)
 
-      // Initialize metadata form with filename
       setMetadata({
         filename: file.name,
         item_type: '',
@@ -58,7 +63,6 @@ export default function WardrobePage() {
         visual_weight: '',
       })
 
-      // Detect items in the image
       try {
         const response = await apiFetch('/api/wardrobe/detect', {
           method: 'POST',
@@ -87,7 +91,7 @@ export default function WardrobePage() {
       return
     }
 
-    setLoading(true)
+    setExtracting(true)
     setError(null)
 
     try {
@@ -110,11 +114,11 @@ export default function WardrobePage() {
         ...metadata,
         ...data.metadata,
       })
-      setSuccess('Metadata extracted successfully. Review and edit before saving.')
+      setSuccess('✨ AI analyzed your outfit! Review and adjust before saving.')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to extract metadata')
     } finally {
-      setLoading(false)
+      setExtracting(false)
     }
   }
 
@@ -129,7 +133,6 @@ export default function WardrobePage() {
       return
     }
 
-    // Validate all fields are filled
     const requiredFields = ['item_type', 'color', 'material', 'formality', 'fit', 'silhouette', 'visual_weight']
     for (const field of requiredFields) {
       if (!metadata[field as keyof MetadataFormState]) {
@@ -153,15 +156,16 @@ export default function WardrobePage() {
         throw new Error(data.error || 'Failed to save item')
       }
 
-      setSuccess('Item saved to wardrobe successfully!')
-      setImagePreview(null)
-      setMetadata(null)
-      setDetectedItems([])
-      setSelectedItem('')
-
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ''
-      }
+      setSuccess('🎉 Item saved to your wardrobe! Ready to add more?')
+      setTimeout(() => {
+        setImagePreview(null)
+        setMetadata(null)
+        setDetectedItems([])
+        setSelectedItem('')
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ''
+        }
+      }, 1500)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save item')
     } finally {
@@ -169,200 +173,318 @@ export default function WardrobePage() {
     }
   }
 
-  return (
-    <div className="max-w-2xl mx-auto py-8">
-        <h1 className="text-4xl font-bold mb-8">Upload Wardrobe Item</h1>
+  const getFieldIcon = (field: string) => {
+    const icons: Record<string, string> = {
+      item_type: '👔',
+      color: '🎨',
+      material: '🧵',
+      formality: '✨',
+      fit: '👗',
+      silhouette: '🎯',
+      visual_weight: '⚖️',
+    }
+    return icons[field] || '✓'
+  }
 
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-bg-primary via-bg-secondary to-bg-primary">
+      {/* Decorative background elements */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-10 right-10 w-32 h-32 bg-primary-hot/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 left-20 w-40 h-40 bg-primary-joy/5 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="relative max-w-3xl mx-auto px-6 py-12">
+        {/* Header */}
+        <div className="mb-12">
+          <h1 className="font-display text-5xl font-bold text-text-primary mb-2">
+            Add to Your Style ✨
+          </h1>
+          <p className="text-text-secondary text-lg font-medium">
+            Upload your outfit and let AI help you catalog it
+          </p>
+        </div>
+
+        {/* Alerts */}
         {error && (
-          <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-            {error}
+          <div className="mb-8 p-4 bg-red-50 border-2 border-red-200 rounded-lg text-red-700 font-medium animate-slide-up">
+            ⚠️ {error}
           </div>
         )}
 
         {success && (
-          <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+          <div className="mb-8 p-4 bg-success/10 border-2 border-success rounded-lg text-success font-medium animate-slide-up">
             {success}
           </div>
         )}
 
-        <div className="mb-8 p-6 border-2 border-dashed border-gray-300 rounded-lg">
-          <label className="block mb-4">
-            <span className="block text-lg font-semibold mb-2">Select Image</span>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleFileSelect}
-              className="block w-full text-sm text-gray-500
-                file:mr-4 file:py-2 file:px-4
-                file:rounded file:border-0
-                file:text-sm file:font-semibold
-                file:bg-blue-50 file:text-blue-700
-                hover:file:bg-blue-100"
-            />
+        {/* Upload Area */}
+        <div className="mb-12 animate-slide-up" style={{ animationDelay: '0ms' }}>
+          <label className="block">
+            <div className="relative p-12 bg-white rounded-2xl border-2 border-dashed border-primary-hot/30 hover:border-primary-hot hover:bg-primary-hot/5 transition-all duration-300 cursor-pointer group">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelect}
+                className="sr-only"
+              />
+              <div className="text-center">
+                <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                  📸
+                </div>
+                <p className="font-display text-xl font-bold text-text-primary mb-2">
+                  Drag your outfit here
+                </p>
+                <p className="text-text-secondary mb-3">or click to pick from your phone</p>
+                <p className="text-sm text-text-secondary">
+                  Supported: JPG, PNG, GIF, WebP
+                </p>
+              </div>
+            </div>
           </label>
         </div>
 
+        {/* Image Preview */}
         {imagePreview && (
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">Preview</h2>
-            <img src={imagePreview} alt="Preview" className="max-w-full h-auto rounded-lg" />
+          <div className="mb-12 animate-slide-up" style={{ animationDelay: '100ms' }}>
+            <div className="rounded-2xl overflow-hidden shadow-lg border-4 border-primary-warm/20">
+              <img src={imagePreview} alt="Preview" className="w-full h-auto" />
+            </div>
           </div>
         )}
 
+        {/* Detected Items */}
         {detectedItems.length > 0 && (
-          <div className="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <h2 className="text-lg font-semibold mb-3">Detected Items</h2>
-            <p className="text-sm text-gray-600 mb-3">Select the item you want to evaluate:</p>
-            <div className="space-y-2">
+          <div className="mb-12 animate-slide-up p-6 bg-white rounded-2xl border-2 border-primary-joy/20 shadow-sm" style={{ animationDelay: '200ms' }}>
+            <p className="font-display text-lg font-bold text-text-primary mb-4">
+              What did I spot? 🔍
+            </p>
+            <p className="text-text-secondary text-sm mb-4">Select the main item:</p>
+            <div className="space-y-3">
               {detectedItems.map((item, idx) => (
-                <label key={idx} className="flex items-center">
+                <label
+                  key={idx}
+                  className="flex items-center p-3 rounded-lg hover:bg-primary-hot/5 cursor-pointer transition-colors"
+                >
                   <input
                     type="radio"
                     name="detected-item"
                     value={item}
                     checked={selectedItem === item}
                     onChange={(e) => setSelectedItem(e.target.value)}
-                    className="mr-3"
+                    className="w-5 h-5 accent-primary-hot"
                   />
-                  <span className="text-gray-800">{item}</span>
+                  <span className="ml-3 font-medium text-text-primary">{item}</span>
                 </label>
               ))}
             </div>
           </div>
         )}
 
+        {/* Metadata Form */}
         {metadata && (
-          <div className="mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Metadata</h2>
-              <button
-                onClick={handleExtractMetadata}
-                disabled={loading}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
-              >
-                {loading ? 'Extracting...' : 'Auto-Extract'}
-              </button>
+          <div className="mb-8 animate-slide-up" style={{ animationDelay: '300ms' }}>
+            <div className="bg-white rounded-2xl border-2 border-primary-hot/10 p-8 shadow-sm">
+              <div className="flex items-center justify-between mb-8">
+                <p className="font-display text-2xl font-bold text-text-primary">
+                  ✨ I think this is...
+                </p>
+                <button
+                  onClick={handleExtractMetadata}
+                  disabled={extracting}
+                  className="px-6 py-2 bg-gradient-primary text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-300 disabled:opacity-50 flex items-center gap-2"
+                >
+                  {extracting ? (
+                    <>
+                      <span className="animate-spin">⟳</span>
+                      Analyzing...
+                    </>
+                  ) : (
+                    <>✨ Auto-Extract</>
+                  )}
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {/* Item Type */}
+                <div className="animate-slide-up" style={{ animationDelay: '400ms' }}>
+                  <label className="block mb-2">
+                    <span className="text-lg font-semibold text-text-primary">
+                      {getFieldIcon('item_type')} Item Type
+                    </span>
+                  </label>
+                  <input
+                    type="text"
+                    value={metadata.item_type}
+                    onChange={(e) => handleMetadataChange('item_type', e.target.value)}
+                    placeholder="e.g., button-up shirt, dress, jeans"
+                    className="w-full px-4 py-3 border-2 border-primary-hot/20 rounded-lg focus:border-primary-hot focus:ring-2 focus:ring-primary-hot/20 focus:outline-none transition-all bg-white"
+                  />
+                </div>
+
+                {/* Color */}
+                <div className="animate-slide-up" style={{ animationDelay: '450ms' }}>
+                  <label className="block mb-2">
+                    <span className="text-lg font-semibold text-text-primary">
+                      {getFieldIcon('color')} Color
+                    </span>
+                  </label>
+                  <div className="flex gap-3">
+                    <input
+                      type="text"
+                      value={metadata.color}
+                      onChange={(e) => handleMetadataChange('color', e.target.value)}
+                      placeholder="e.g., navy blue, cream, red"
+                      className="flex-1 px-4 py-3 border-2 border-primary-hot/20 rounded-lg focus:border-primary-hot focus:ring-2 focus:ring-primary-hot/20 focus:outline-none transition-all bg-white"
+                    />
+                    <div
+                      className="w-12 h-12 rounded-lg border-2 border-primary-hot/20"
+                      style={{
+                        backgroundColor: metadata.color || '#f0f0f0',
+                      }}
+                    ></div>
+                  </div>
+                </div>
+
+                {/* Material */}
+                <div className="animate-slide-up" style={{ animationDelay: '500ms' }}>
+                  <label className="block mb-2">
+                    <span className="text-lg font-semibold text-text-primary">
+                      {getFieldIcon('material')} Material
+                    </span>
+                    <p className="text-xs text-text-secondary mt-1 font-normal">
+                      💡 Tip: Check the garment tag for accuracy
+                    </p>
+                  </label>
+                  <input
+                    type="text"
+                    value={metadata.material}
+                    onChange={(e) => handleMetadataChange('material', e.target.value)}
+                    placeholder="e.g., cotton, silk, denim, wool"
+                    className="w-full px-4 py-3 border-2 border-primary-hot/20 rounded-lg focus:border-primary-hot focus:ring-2 focus:ring-primary-hot/20 focus:outline-none transition-all bg-white"
+                  />
+                </div>
+
+                {/* Formality */}
+                <div className="animate-slide-up" style={{ animationDelay: '550ms' }}>
+                  <label className="block mb-2">
+                    <span className="text-lg font-semibold text-text-primary">
+                      {getFieldIcon('formality')} Formality
+                    </span>
+                  </label>
+                  <select
+                    value={metadata.formality}
+                    onChange={(e) => handleMetadataChange('formality', e.target.value)}
+                    className="w-full px-4 py-3 border-2 border-primary-hot/20 rounded-lg focus:border-primary-hot focus:ring-2 focus:ring-primary-hot/20 focus:outline-none transition-all bg-white font-medium"
+                  >
+                    <option value="">Choose one...</option>
+                    <option value="casual">Casual 👖</option>
+                    <option value="business casual">Business Casual 👔</option>
+                    <option value="business">Business 🎩</option>
+                    <option value="formal">Formal 🍾</option>
+                  </select>
+                </div>
+
+                {/* Fit */}
+                <div className="animate-slide-up" style={{ animationDelay: '600ms' }}>
+                  <label className="block mb-2">
+                    <span className="text-lg font-semibold text-text-primary">
+                      {getFieldIcon('fit')} Fit
+                    </span>
+                  </label>
+                  <select
+                    value={metadata.fit}
+                    onChange={(e) => handleMetadataChange('fit', e.target.value)}
+                    className="w-full px-4 py-3 border-2 border-primary-hot/20 rounded-lg focus:border-primary-hot focus:ring-2 focus:ring-primary-hot/20 focus:outline-none transition-all bg-white font-medium"
+                  >
+                    <option value="">Choose one...</option>
+                    <option value="fitted">Fitted 💪</option>
+                    <option value="regular">Regular 👚</option>
+                    <option value="loose">Loose 🎪</option>
+                    <option value="oversize">Oversize 🛌</option>
+                  </select>
+                </div>
+
+                {/* Silhouette */}
+                <div className="animate-slide-up" style={{ animationDelay: '650ms' }}>
+                  <label className="block mb-2">
+                    <span className="text-lg font-semibold text-text-primary">
+                      {getFieldIcon('silhouette')} Silhouette
+                    </span>
+                  </label>
+                  <input
+                    type="text"
+                    value={metadata.silhouette}
+                    onChange={(e) => handleMetadataChange('silhouette', e.target.value)}
+                    placeholder="e.g., straight, fitted, A-line, flowing"
+                    className="w-full px-4 py-3 border-2 border-primary-hot/20 rounded-lg focus:border-primary-hot focus:ring-2 focus:ring-primary-hot/20 focus:outline-none transition-all bg-white"
+                  />
+                </div>
+
+                {/* Visual Weight */}
+                <div className="animate-slide-up" style={{ animationDelay: '700ms' }}>
+                  <label className="block mb-2">
+                    <span className="text-lg font-semibold text-text-primary">
+                      {getFieldIcon('visual_weight')} Visual Weight
+                    </span>
+                  </label>
+                  <select
+                    value={metadata.visual_weight}
+                    onChange={(e) => handleMetadataChange('visual_weight', e.target.value)}
+                    className="w-full px-4 py-3 border-2 border-primary-hot/20 rounded-lg focus:border-primary-hot focus:ring-2 focus:ring-primary-hot/20 focus:outline-none transition-all bg-white font-medium"
+                  >
+                    <option value="">Choose one...</option>
+                    <option value="light">Light 🪶</option>
+                    <option value="medium">Medium ⚖️</option>
+                    <option value="heavy">Heavy 🏋️</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mt-8">
+                <button
+                  onClick={() => {
+                    setImagePreview(null)
+                    setMetadata(null)
+                    setDetectedItems([])
+                    setSelectedItem('')
+                    if (fileInputRef.current) {
+                      fileInputRef.current.value = ''
+                    }
+                  }}
+                  className="px-6 py-3 bg-bg-secondary text-text-primary font-semibold rounded-lg hover:bg-bg-dark/10 transition-all"
+                >
+                  ← Start Over
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={loading}
+                  className="px-6 py-3 bg-gradient-primary text-white font-semibold rounded-lg hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {loading ? (
+                    <>
+                      <span className="animate-spin">⟳</span>
+                      Saving...
+                    </>
+                  ) : (
+                    <>💾 Save Item</>
+                  )}
+                </button>
+              </div>
             </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Filename</label>
-                <input
-                  type="text"
-                  value={metadata.filename}
-                  disabled
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Item Type</label>
-                <input
-                  type="text"
-                  value={metadata.item_type}
-                  onChange={(e) => handleMetadataChange('item_type', e.target.value)}
-                  placeholder="e.g., button-up shirt, pants, jacket"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Color</label>
-                <input
-                  type="text"
-                  value={metadata.color}
-                  onChange={(e) => handleMetadataChange('color', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Material
-                  <span className="text-xs text-gray-500 block font-normal mt-1">
-                    💡 Tip: Check the garment tag if unsure (AI extraction may be inaccurate for similar fabrics like cotton vs linen)
-                  </span>
-                </label>
-                <input
-                  type="text"
-                  value={metadata.material}
-                  onChange={(e) => handleMetadataChange('material', e.target.value)}
-                  placeholder="e.g., cotton, polyester, linen, wool"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Formality</label>
-                <select
-                  value={metadata.formality}
-                  onChange={(e) => handleMetadataChange('formality', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
-                >
-                  <option value="">Select...</option>
-                  <option value="casual">Casual</option>
-                  <option value="business casual">Business Casual</option>
-                  <option value="business">Business</option>
-                  <option value="formal">Formal</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Fit</label>
-                <select
-                  value={metadata.fit}
-                  onChange={(e) => handleMetadataChange('fit', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
-                >
-                  <option value="">Select...</option>
-                  <option value="fitted">Fitted</option>
-                  <option value="regular">Regular</option>
-                  <option value="loose">Loose</option>
-                  <option value="oversize">Oversize</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Silhouette</label>
-                <input
-                  type="text"
-                  value={metadata.silhouette}
-                  onChange={(e) => handleMetadataChange('silhouette', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Visual Weight</label>
-                <select
-                  value={metadata.visual_weight}
-                  onChange={(e) => handleMetadataChange('visual_weight', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
-                >
-                  <option value="">Select...</option>
-                  <option value="light">Light</option>
-                  <option value="medium">Medium</option>
-                  <option value="heavy">Heavy</option>
-                </select>
-              </div>
-            </div>
-
-            <button
-              onClick={handleSave}
-              disabled={loading}
-              className="mt-6 w-full px-4 py-3 bg-green-500 text-white font-semibold rounded-md hover:bg-green-600 disabled:bg-gray-400"
-            >
-              {loading ? 'Saving...' : 'Save Item'}
-            </button>
           </div>
         )}
 
+        {/* Empty State */}
         {!metadata && !imagePreview && (
-          <div className="text-center text-gray-500 py-8">
-            Select an image to get started
+          <div className="text-center py-16 animate-slide-up">
+            <p className="text-2xl text-text-secondary font-medium">
+              👇 Start by uploading an outfit photo
+            </p>
           </div>
         )}
       </div>
+    </div>
   )
 }

@@ -1,10 +1,22 @@
 import type { Metadata } from 'next'
+import { Fredoka, Poppins } from 'next/font/google'
 import { Navigation } from '@/components/Navigation'
 import './globals.css'
 
+const fredoka = Fredoka({
+  variable: '--font-fredoka',
+  subsets: ['latin'],
+})
+
+const poppins = Poppins({
+  variable: '--font-poppins',
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+})
+
 export const metadata: Metadata = {
-  title: 'AI Wardrobe Assistant - Phase 1 MVP',
-  description: 'An AI-powered wardrobe intelligence system',
+  title: 'AI Wardrobe Assistant',
+  description: 'Organize your wardrobe with AI-powered metadata extraction',
 }
 
 export default function RootLayout({
@@ -13,13 +25,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" className={`${fredoka.variable} ${poppins.variable}`}>
+      <body className="bg-bg-primary">
         <Navigation />
-        <main className="min-h-screen bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {children}
-          </div>
+        <main>
+          {children}
         </main>
       </body>
     </html>
