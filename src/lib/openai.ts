@@ -203,7 +203,7 @@ export async function suggestPairings(
 
     if (wardrobeItems.length === 0) {
       console.log('[suggestPairings] No wardrobe items, using generic suggestions')
-      return getGenericPairingSuggestions(uploadedItemAnalysis)
+      return await getGenericPairingSuggestions(uploadedItemAnalysis)
     }
 
     const wardrobeItemsList = wardrobeItems
@@ -285,51 +285,118 @@ Return ONLY valid JSON, no markdown, no text before or after.`,
         return result
       } catch (parseError) {
         console.error('[suggestPairings] JSON parse error:', parseError, 'Content:', content?.substring(0, 300))
-        return getGenericPairingSuggestions(uploadedItemAnalysis)
+        return await getGenericPairingSuggestions(uploadedItemAnalysis)
       }
     }
 
     console.log('[suggestPairings] No content from GPT response')
-    return getGenericPairingSuggestions(uploadedItemAnalysis)
+    return await getGenericPairingSuggestions(uploadedItemAnalysis)
   } catch (error) {
     console.error('[suggestPairings] Error:', error)
     throw error
   }
 }
 
-function getGenericPairingSuggestions(
+async function getGenericPairingSuggestions(
+  uploadedItemAnalysis: Record<string, string>
+): Promise<Array<{ item: Record<string, unknown>; reason: string; matchScore: number }>> {
+  try {
+    console.log('[getGenericPairingSuggestions] Generating smart suggestions via GPT-4o')
+
+    const response = await client.chat.completions.create({
+      model: 'gpt-4o',
+      max_tokens: 512,
+      messages: [
+        {
+          role: 'user',
+          content: `You are a fashion stylist. A user has uploaded an item but has an empty wardrobe. Suggest 3 generic clothing items that would pair well with their uploaded item.
+
+UPLOADED ITEM:
+- Type: ${uploadedItemAnalysis.detected_type || uploadedItemAnalysis.item_type || 'clothing item'}
+- Color: ${uploadedItemAnalysis.color}
+- Material: ${uploadedItemAnalysis.material}
+- Formality: ${uploadedItemAnalysis.formality}
+- Fit: ${uploadedItemAnalysis.fit}
+- Silhouette: ${uploadedItemAnalysis.silhouette}
+- Visual Weight: ${uploadedItemAnalysis.visual_weight}
+
+Suggest 3 generic clothing items (not specific colors, but actual clothing types) that would pair well. Consider color harmony, formality matching, and style compatibility.
+
+Return ONLY valid JSON, no markdown, in this format:
+[
+  {
+    "item_type": "navy pants",
+    "reason": "Complements the color and creates formal contrast",
+    "matchScore": 80
+  },
+  {
+    "item_type": "white shirt",
+    "reason": "Provides neutral pairing for a balanced look",
+    "matchScore": 75
+  },
+  {
+    "item_type": "black shoes",
+    "reason": "Grounds the outfit and adds visual weight",
+    "matchScore": 70
+  }
+]`,
+        },
+      ],
+    })
+
+    const content = response.choices[0]?.message?.content
+    if (typeof content === 'string') {
+      try {
+        // Strip markdown code blocks if present
+        let jsonContent = content.trim()
+        if (jsonContent.startsWith('```json')) {
+          jsonContent = jsonContent.replace(/^```json\s*/, '').replace(/\s*```$/, '')
+        } else if (jsonContent.startsWith('```')) {
+          jsonContent = jsonContent.replace(/^```\s*/, '').replace(/\s*```$/, '')
+        }
+
+        const suggestions = JSON.parse(jsonContent)
+        console.log('[getGenericPairingSuggestions] Generated', suggestions.length, 'generic suggestions')
+
+        return suggestions.map(
+          (s: { item_type: string; reason: string; matchScore: number }) => ({
+            item: { item_type: s.item_type, formality: uploadedItemAnalysis.formality || 'casual' },
+            reason: s.reason,
+            matchScore: s.matchScore,
+          })
+        )
+      } catch (parseError) {
+        console.error('[getGenericPairingSuggestions] Parse error:', parseError)
+        return getHardcodedFallback(uploadedItemAnalysis)
+      }
+    }
+
+    return getHardcodedFallback(uploadedItemAnalysis)
+  } catch (error) {
+    console.error('[getGenericPairingSuggestions] Error:', error)
+    return getHardcodedFallback(uploadedItemAnalysis)
+  }
+}
+
+function getHardcodedFallback(
   uploadedItemAnalysis: Record<string, string>
 ): Array<{ item: Record<string, unknown>; reason: string; matchScore: number }> {
-  const color = uploadedItemAnalysis.color || 'this color'
   const formality = uploadedItemAnalysis.formality || 'casual'
-
-  const colorPairs: Record<string, string[]> = {
-    red: ['navy', 'white', 'cream', 'black', 'gray'],
-    navy: ['white', 'cream', 'khaki', 'red', 'gray'],
-    white: ['any color', 'navy', 'black', 'gray', 'earth tones'],
-    black: ['white', 'gray', 'navy', 'red', 'gold accents'],
-    gray: ['white', 'navy', 'black', 'any color'],
-    cream: ['navy', 'brown', 'gray', 'white', 'pastels'],
-  }
-
-  const getColorKey = (c: string): string => Object.keys(colorPairs).find((k) => c.toLowerCase().includes(k)) || 'navy'
-  const pairedColors = colorPairs[getColorKey(color)] || ['navy', 'white', 'gray']
-
   return [
     {
-      item: { color: pairedColors[0], item_type: 'complement item', formality },
-      reason: `${pairedColors[0]} is a complementary color to ${color} and matches ${formality} formality level`,
-      matchScore: 75,
-    },
-    {
-      item: { color: pairedColors[1], item_type: 'neutral item', formality },
-      reason: `${pairedColors[1]} is a neutral that pairs well with any ${color} item`,
+      item: { item_type: 'neutral pants or skirt', formality },
+      reason: 'Provides a neutral base to let your uploaded item stand out',
       matchScore: 70,
     },
     {
-      item: { color: pairedColors[2], item_type: 'versatile item', formality },
-      reason: `${pairedColors[2]} is versatile and works across multiple formality levels`,
+      item: { item_type: 'complementary shoes', formality },
+      reason: 'Completes the outfit and grounds the overall look',
       matchScore: 65,
+    },
+    {
+      item: { item_type: 'layering piece', formality },
+      reason: 'Adds depth and allows for styling flexibility',
+      matchScore: 60,
     },
   ]
 }
