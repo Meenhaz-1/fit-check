@@ -342,21 +342,21 @@ Examples: with blouse→pants/skirt/jacket/heels; with pants→blouse/jacket; wi
 
 Consider color harmony, formality matching, style compatibility, and appropriateness for women's fashion.
 
-Return ONLY valid JSON, no markdown, in this format:
+Return ONLY valid JSON, no markdown, in this format (include fit for pants/jeans):
 [
   {
-    "item_type": "navy pants",
-    "reason": "Complements the color and creates formal contrast",
+    "item_type": "dark blue slim jeans",
+    "reason": "Complements the color and creates casual contrast",
     "matchScore": 80
   },
   {
-    "item_type": "white shirt",
+    "item_type": "white fitted shirt",
     "reason": "Provides neutral pairing for a balanced look",
     "matchScore": 75
   },
   {
-    "item_type": "black shoes",
-    "reason": "Grounds the outfit and adds visual weight",
+    "item_type": "black pointed-toe heels",
+    "reason": "Grounds the outfit and adds visual interest",
     "matchScore": 70
   }
 ]`,
