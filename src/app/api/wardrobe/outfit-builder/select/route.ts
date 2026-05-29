@@ -39,8 +39,17 @@ export async function POST(request: Request) {
 
     // Get all wardrobe items
     console.time('Fetch wardrobe items')
-    const wardrobeItems = getAllWardrobeItems()
+    const allWardrobeItems = getAllWardrobeItems()
     console.timeEnd('Fetch wardrobe items')
+
+    // Filter: exclude items of the same type (no point suggesting another shirt if looking for shirt pairings)
+    console.time('Filter complementary items')
+    const wardrobeItems = allWardrobeItems.filter(
+      (item) => item.item_type !== body.itemType && item.id !== body.itemId
+    )
+    console.timeEnd('Filter complementary items')
+
+    console.log(`[outfit-builder/select] Filtered from ${allWardrobeItems.length} to ${wardrobeItems.length} complementary items`)
 
     if (!wardrobeItems || wardrobeItems.length === 0) {
       return NextResponse.json(
