@@ -165,12 +165,12 @@ export default function OutfitBuilder() {
     <div className="bg-surface min-h-screen">
       {/* ── Header ────────────────────────────────────────────────────────── */}
       <div className="border-b border-outline-variant">
-        <div className="max-w-atelier mx-auto px-16 py-16">
-          <p className="label-caps mb-4">Outfit Builder</p>
-          <h1 className="font-serif text-headline-md font-normal text-on-surface mb-3">
+        <div className="max-w-atelier mx-auto px-4 sm:px-6 md:px-8 lg:px-16 py-6 sm:py-8 md:py-12 lg:py-16">
+          <p className="label-caps mb-2 sm:mb-3 md:mb-4 text-xs sm:text-sm">Outfit Builder</p>
+          <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-normal text-on-surface mb-2 sm:mb-3">
             Build Complete Outfits
           </h1>
-          <p className="text-sm text-on-surface-variant max-w-md">
+          <p className="text-xs sm:text-sm text-on-surface-variant max-w-md">
             Upload a new piece or select from your wardrobe. Get 3 complete outfit suggestions
             with styling explanations and occasions.
           </p>
@@ -179,14 +179,14 @@ export default function OutfitBuilder() {
 
       {/* ── Tabs ──────────────────────────────────────────────────────────── */}
       <div className="border-b border-outline-variant">
-        <div className="max-w-atelier mx-auto px-16">
-          <div className="flex gap-8">
+        <div className="max-w-atelier mx-auto px-4 sm:px-6 md:px-8 lg:px-16">
+          <div className="flex gap-4 sm:gap-6 md:gap-8 overflow-x-auto">
             <button
               onClick={() => {
                 setActiveTab('upload')
                 handleReset()
               }}
-              className={`py-4 label-caps transition-colors duration-150 ${
+              className={`py-3 sm:py-4 label-caps transition-colors duration-150 text-xs sm:text-sm whitespace-nowrap ${
                 activeTab === 'upload'
                   ? 'text-on-surface border-b border-on-surface'
                   : 'text-outline hover:text-on-surface-variant'
@@ -199,7 +199,7 @@ export default function OutfitBuilder() {
                 setActiveTab('select')
                 handleReset()
               }}
-              className={`py-4 label-caps transition-colors duration-150 ${
+              className={`py-3 sm:py-4 label-caps transition-colors duration-150 text-xs sm:text-sm whitespace-nowrap ${
                 activeTab === 'select'
                   ? 'text-on-surface border-b border-on-surface'
                   : 'text-outline hover:text-on-surface-variant'
@@ -211,10 +211,10 @@ export default function OutfitBuilder() {
         </div>
       </div>
 
-      <div className="max-w-atelier mx-auto px-16 py-16">
+      <div className="max-w-atelier mx-auto px-4 sm:px-6 md:px-8 lg:px-16 py-6 sm:py-8 md:py-12 lg:py-16">
         {/* ── UPLOAD TAB ────────────────────────────────────────────────── */}
         {activeTab === 'upload' && (
-          <div className="grid grid-cols-2 gap-24">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12 lg:gap-24">
             {/* Left: Image upload */}
             <div>
               {!imagePreview ? (
@@ -323,11 +323,11 @@ export default function OutfitBuilder() {
                 </Link>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-24">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12 lg:gap-24">
                 {/* Left: Gallery preview */}
                 <div>
-                  <p className="label-caps mb-6">Click an item to build outfits around it:</p>
-                  <div className="grid grid-cols-2 gap-4">
+                  <p className="label-caps mb-4 sm:mb-6 text-xs sm:text-sm">Click an item to build outfits around it:</p>
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-2 gap-2 sm:gap-3 md:gap-4">
                     {wardrobeItems.map((item) => (
                       <button
                         key={item.id}
@@ -419,18 +419,18 @@ export default function OutfitBuilder() {
 // Outfit Card Component
 function OutfitCard({ outfit }: { outfit: OutfitSuggestion }) {
   return (
-    <div className="p-6 border border-outline-variant bg-surface-container rounded-lg space-y-4">
+    <div className="p-4 sm:p-5 md:p-6 border border-outline-variant bg-surface-container rounded-lg space-y-4">
       {/* Match Score */}
-      <div className="flex items-center justify-between">
-        <h3 className="font-serif text-lg font-normal text-on-surface">Outfit {outfit.id}</h3>
-        <span className="text-sm font-bold text-on-surface">{outfit.matchScore}% match</span>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
+        <h3 className="font-serif text-base sm:text-lg font-normal text-on-surface">Outfit {outfit.id}</h3>
+        <span className="text-xs sm:text-sm font-bold text-on-surface">{outfit.matchScore}% match</span>
       </div>
 
       {/* Outfit Items Preview */}
-      <div className="flex gap-3">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
         {outfit.top && (
-          <div className="flex-1">
-            <div className="aspect-[2/3] bg-surface-low border border-outline-variant flex items-center justify-center mb-2 overflow-hidden">
+          <div className="min-w-0">
+            <div className="aspect-[2/3] bg-surface-low border border-outline-variant flex items-center justify-center mb-1 sm:mb-2 overflow-hidden">
               {outfit.top.imageUrl ? (
                 <img
                   src={outfit.top.imageUrl}
@@ -438,17 +438,17 @@ function OutfitCard({ outfit }: { outfit: OutfitSuggestion }) {
                   className="w-full h-full object-contain"
                 />
               ) : (
-                <span className="text-xs text-outline text-center px-2">{outfit.top.item_type}</span>
+                <span className="text-xs text-outline text-center px-1 sm:px-2 text-center line-clamp-2">{outfit.top.item_type}</span>
               )}
             </div>
             <p className="text-xs text-on-surface-variant text-center truncate">{outfit.top.item_type}</p>
-            <p className="text-xs text-outline text-center">{outfit.top.color}</p>
+            <p className="text-xs text-outline text-center truncate">{outfit.top.color}</p>
           </div>
         )}
 
         {outfit.bottom && (
-          <div className="flex-1">
-            <div className="aspect-[2/3] bg-surface-low border border-outline-variant flex items-center justify-center mb-2 overflow-hidden">
+          <div className="min-w-0">
+            <div className="aspect-[2/3] bg-surface-low border border-outline-variant flex items-center justify-center mb-1 sm:mb-2 overflow-hidden">
               {outfit.bottom.imageUrl ? (
                 <img
                   src={outfit.bottom.imageUrl}
@@ -456,17 +456,17 @@ function OutfitCard({ outfit }: { outfit: OutfitSuggestion }) {
                   className="w-full h-full object-contain"
                 />
               ) : (
-                <span className="text-xs text-outline text-center px-2">{outfit.bottom.item_type}</span>
+                <span className="text-xs text-outline text-center px-1 sm:px-2 text-center line-clamp-2">{outfit.bottom.item_type}</span>
               )}
             </div>
             <p className="text-xs text-on-surface-variant text-center truncate">{outfit.bottom.item_type}</p>
-            <p className="text-xs text-outline text-center">{outfit.bottom.color}</p>
+            <p className="text-xs text-outline text-center truncate">{outfit.bottom.color}</p>
           </div>
         )}
 
         {outfit.shoes && (
-          <div className="flex-1">
-            <div className="aspect-[2/3] bg-surface-low border border-outline-variant flex items-center justify-center mb-2 overflow-hidden">
+          <div className="min-w-0">
+            <div className="aspect-[2/3] bg-surface-low border border-outline-variant flex items-center justify-center mb-1 sm:mb-2 overflow-hidden">
               {outfit.shoes.imageUrl ? (
                 <img
                   src={outfit.shoes.imageUrl}
@@ -474,18 +474,18 @@ function OutfitCard({ outfit }: { outfit: OutfitSuggestion }) {
                   className="w-full h-full object-contain"
                 />
               ) : (
-                <span className="text-xs text-outline text-center px-2">{outfit.shoes.item_type}</span>
+                <span className="text-xs text-outline text-center px-1 sm:px-2 text-center line-clamp-2">{outfit.shoes.item_type}</span>
               )}
             </div>
             <p className="text-xs text-on-surface-variant text-center truncate">{outfit.shoes.item_type}</p>
-            <p className="text-xs text-outline text-center">{outfit.shoes.color}</p>
+            <p className="text-xs text-outline text-center truncate">{outfit.shoes.color}</p>
           </div>
         )}
       </div>
 
       {/* Why It Works */}
-      <div className="pt-4 border-t border-outline-variant">
-        <p className="text-xs font-semibold text-on-surface mb-3">Why it works:</p>
+      <div className="pt-3 sm:pt-4 border-t border-outline-variant">
+        <p className="text-xs font-semibold text-on-surface mb-2 sm:mb-3">Why it works:</p>
         <div className="space-y-2 text-xs text-on-surface-variant leading-relaxed">
           {outfit.whyItWorks.split('. ').map((sentence, idx) => (
             <p key={idx} className="first:mt-0">
@@ -503,7 +503,7 @@ function OutfitCard({ outfit }: { outfit: OutfitSuggestion }) {
             {outfit.occasions.map((occasion, idx) => (
               <span
                 key={idx}
-                className="px-3 py-1.5 bg-atelier-gold text-on-surface text-xs font-medium label-caps hover:bg-atelier-gold-dim transition-colors duration-150"
+                className="px-2 sm:px-3 py-1 sm:py-1.5 bg-atelier-gold text-on-surface text-xs font-medium label-caps hover:bg-atelier-gold-dim transition-colors duration-150"
               >
                 {occasion}
               </span>
