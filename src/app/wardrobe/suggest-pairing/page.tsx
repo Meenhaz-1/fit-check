@@ -485,8 +485,14 @@ function OutfitCard({ outfit }: { outfit: OutfitSuggestion }) {
 
       {/* Why It Works */}
       <div className="pt-4 border-t border-outline-variant">
-        <p className="text-xs font-semibold text-on-surface mb-2">Why it works:</p>
-        <p className="text-xs text-on-surface-variant leading-relaxed">{outfit.whyItWorks}</p>
+        <p className="text-xs font-semibold text-on-surface mb-3">Why it works:</p>
+        <div className="space-y-2 text-xs text-on-surface-variant leading-relaxed">
+          {outfit.whyItWorks.split('. ').map((sentence, idx) => (
+            <p key={idx} className="first:mt-0">
+              {sentence.trim()}{!sentence.endsWith('.') && '.'}
+            </p>
+          ))}
+        </div>
       </div>
 
       {/* Occasions */}
