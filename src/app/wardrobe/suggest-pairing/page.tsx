@@ -497,7 +497,7 @@ function OutfitCard({ outfit }: { outfit: OutfitSuggestion }) {
             {outfit.occasions.map((occasion, idx) => (
               <span
                 key={idx}
-                className="px-3 py-1.5 bg-secondary text-on-secondary text-xs font-medium rounded label-caps hover:bg-secondary-dark transition-colors"
+                className="px-3 py-1.5 bg-atelier-gold text-on-surface text-xs font-medium label-caps hover:bg-atelier-gold-dim transition-colors duration-150"
               >
                 {occasion}
               </span>
