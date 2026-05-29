@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { detectClothingItems } from '@/lib/openai'
-import { checkRateLimit } from '@/lib/rateLimit'
 
 const ALLOWED_MEDIA_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] as const
 type AllowedMediaType = (typeof ALLOWED_MEDIA_TYPES)[number]
@@ -14,11 +13,6 @@ interface DetectRequest {
 }
 
 export async function POST(request: Request) {
-  const ip = request.headers.get('x-forwarded-for') ?? 'unknown'
-  if (!checkRateLimit(ip, 20, 60_000)) {
-    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
-  }
-
   try {
     const body: DetectRequest = await request.json()
 

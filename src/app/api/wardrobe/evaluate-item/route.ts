@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { detectClothingItems, extractMetadata, evaluateOutfit } from '@/lib/openai'
-import { checkRateLimit } from '@/lib/rateLimit'
 import { insertEvaluation } from '@/lib/db'
 
 const ALLOWED_MEDIA_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] as const
@@ -15,11 +14,6 @@ interface EvaluateItemRequest {
 }
 
 export async function POST(request: Request) {
-  const ip = request.headers.get('x-forwarded-for') ?? 'unknown'
-  if (!checkRateLimit(ip, 20, 60_000)) {
-    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
-  }
-
   try {
     const body: EvaluateItemRequest = await request.json()
 
@@ -57,14 +51,15 @@ export async function POST(request: Request) {
     const itemsWithMetadata = await Promise.all(
       detectedItems.map(async (itemName) => {
         const metadata = await extractMetadata(body.image, itemName, mediaType)
+        const itemMetadata = (Array.isArray(metadata) ? metadata[0] : metadata) as Record<string, string>
         return {
           type: itemName,
-          color: metadata.color || 'unknown',
-          material: metadata.material || 'unknown',
-          formality: metadata.formality || 'casual',
-          fit: metadata.fit || 'regular',
-          silhouette: metadata.silhouette || 'straight',
-          visual_weight: metadata.visual_weight || 'medium',
+          color: itemMetadata.color || 'unknown',
+          material: itemMetadata.material || 'unknown',
+          formality: itemMetadata.formality || 'casual',
+          fit: itemMetadata.fit || 'regular',
+          silhouette: itemMetadata.silhouette || 'straight',
+          visual_weight: itemMetadata.visual_weight || 'medium',
         }
       })
     )

@@ -8,7 +8,7 @@ import { getThumbnailUrl, generateSrcSet } from '@/lib/image-optimizer'
 
 interface WardrobeItem {
   id: string
-  filename: string
+  filename?: string
   description?: string
   item_type: string
   color: string

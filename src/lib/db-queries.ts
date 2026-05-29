@@ -11,6 +11,8 @@ interface WardrobeItem {
   id: string
   item_type: string
   color: string
+  material?: string
+  formality?: string
 }
 
 /**

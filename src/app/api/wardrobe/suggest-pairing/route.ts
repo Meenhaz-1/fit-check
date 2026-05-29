@@ -30,7 +30,8 @@ export async function POST(request: Request) {
     const selectedItem = detectedItems[0]
 
     // Step 2: Extract detailed metadata from the uploaded item
-    const itemMetadata = await extractMetadata(body.image, selectedItem, mediaType)
+    const itemMetadataResult = await extractMetadata(body.image, selectedItem, validation.mediaType!)
+    const itemMetadata = (Array.isArray(itemMetadataResult) ? itemMetadataResult[0] : itemMetadataResult) as Record<string, string>
 
     // Step 3: Get all wardrobe items
     const wardrobeItems = getAllWardrobeItems()

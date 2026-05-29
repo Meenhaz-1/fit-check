@@ -71,6 +71,7 @@ const VERDICT_CONFIG = {
 
 export default function EvaluateItemPage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [mediaType, setMediaType] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -79,6 +80,8 @@ export default function EvaluateItemPage() {
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
   const [selectedPersona, setSelectedPersona] = useState<Persona>('minimalist')
   const [result, setResult] = useState<EvaluationResult | null>(null)
+  const [buttonPressed, setButtonPressed] = useState(false)
+  const [showRipple, setShowRipple] = useState(false)
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -174,6 +177,27 @@ export default function EvaluateItemPage() {
     }
   }
 
+  const handleButtonMouseDown = () => {
+    setButtonPressed(true)
+    setShowRipple(true)
+    if (buttonRef.current) {
+      buttonRef.current.classList.add('animate-button-press', 'animate-accent-ripple')
+    }
+  }
+
+  const handleButtonMouseUp = () => {
+    setButtonPressed(false)
+    if (buttonRef.current) {
+      buttonRef.current.classList.remove('animate-button-press')
+      buttonRef.current.classList.add('animate-button-release')
+      setTimeout(() => {
+        if (buttonRef.current) {
+          buttonRef.current.classList.remove('animate-button-release')
+        }
+      }, 200)
+    }
+  }
+
   const handleReset = () => {
     setImagePreview(null)
     setMediaType(null)
@@ -264,7 +288,7 @@ export default function EvaluateItemPage() {
                     Items Detected
                   </h2>
                   <p className="text-xs sm:text-sm text-on-surface-variant mb-6">
-                    Select the piece(s) you'd like analyzed. Evaluate the entire outfit or focus on specific items.
+                    {"Select the piece(s) you'd like analyzed. Evaluate the entire outfit or focus on specific items."}
                   </p>
 
                   <div className="space-y-3 mb-8 pb-8 border-b border-outline-variant">
@@ -321,9 +345,15 @@ export default function EvaluateItemPage() {
                   </div>
 
                   <button
+                    ref={buttonRef}
                     onClick={handleEvaluate}
+                    onMouseDown={handleButtonMouseDown}
+                    onMouseUp={handleButtonMouseUp}
+                    onMouseLeave={handleButtonMouseUp}
                     disabled={loading || selectedItems.size === 0}
-                    className="w-full px-6 py-4 bg-on-surface text-surface text-sm font-medium tracking-btn uppercase hover:bg-black transition-colors duration-150 disabled:opacity-40"
+                    className={`w-full px-6 py-4 bg-on-surface text-surface text-sm font-medium tracking-btn uppercase hover:bg-black transition-colors duration-150 disabled:opacity-40 ${
+                      loading ? 'animate-loading-pulse' : ''
+                    }`}
                   >
                     {loading ? 'Analysing…' : `Evaluate ${selectedItems.size === detectedItems.length ? 'Entire Outfit' : `${selectedItems.size} Item${selectedItems.size !== 1 ? 's' : ''}`} with ${PERSONAS[selectedPersona].name}`}
                   </button>
@@ -517,67 +547,6 @@ export default function EvaluateItemPage() {
                       </li>
                     ))}
                   </ul>
-                </div>
-              )}
-
-              {/* Complete the look */}
-              {result.evaluation.completeLook && (
-                <div className="border-b border-outline-variant pb-6 sm:pb-8 mb-6 sm:mb-8">
-                  <p className="label-caps mb-4 sm:mb-6 text-xs sm:text-sm">Complete the Look</p>
-                  <div className="space-y-4 sm:space-y-6">
-                    {result.evaluation.completeLook.tops && result.evaluation.completeLook.tops.length > 0 && (
-                      <div>
-                        <p className="label-caps text-on-surface-variant mb-2 sm:mb-3 text-xs sm:text-sm">Tops</p>
-                        <ul className="space-y-2">
-                          {result.evaluation.completeLook.tops.map((item, i) => (
-                            <li key={i} className="text-xs sm:text-sm text-on-surface flex gap-3">
-                              <span className="text-outline shrink-0 mt-0.5">•</span>
-                              <span>{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    {result.evaluation.completeLook.bottoms && result.evaluation.completeLook.bottoms.length > 0 && (
-                      <div>
-                        <p className="label-caps text-on-surface-variant mb-2 sm:mb-3 text-xs sm:text-sm">Bottoms</p>
-                        <ul className="space-y-2">
-                          {result.evaluation.completeLook.bottoms.map((item, i) => (
-                            <li key={i} className="text-xs sm:text-sm text-on-surface flex gap-3">
-                              <span className="text-outline shrink-0 mt-0.5">•</span>
-                              <span>{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    {result.evaluation.completeLook.footwear && result.evaluation.completeLook.footwear.length > 0 && (
-                      <div>
-                        <p className="label-caps text-on-surface-variant mb-2 sm:mb-3 text-xs sm:text-sm">Footwear</p>
-                        <ul className="space-y-2">
-                          {result.evaluation.completeLook.footwear.map((item, i) => (
-                            <li key={i} className="text-xs sm:text-sm text-on-surface flex gap-3">
-                              <span className="text-outline shrink-0 mt-0.5">•</span>
-                              <span>{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    {result.evaluation.completeLook.accessories && result.evaluation.completeLook.accessories.length > 0 && (
-                      <div>
-                        <p className="label-caps text-on-surface-variant mb-2 sm:mb-3 text-xs sm:text-sm">Accessories</p>
-                        <ul className="space-y-2">
-                          {result.evaluation.completeLook.accessories.map((item, i) => (
-                            <li key={i} className="text-xs sm:text-sm text-on-surface flex gap-3">
-                              <span className="text-outline shrink-0 mt-0.5">•</span>
-                              <span>{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
                 </div>
               )}
 

@@ -7,6 +7,11 @@ import {
   categorizeItemType,
 } from '@/lib/ai-utils'
 import { PROMPTS } from '@/config/prompts'
+import {
+  calculateFitCompatibility,
+  getFitPairingRecommendations,
+  type FitType,
+} from '@/lib/fit-compatibility'
 
 const apiKey = process.env.OPENAI_API_KEY
 
@@ -104,14 +109,14 @@ export async function extractMetadata(
     if (typeof content === 'string') {
       if (isMultiple) {
         try {
-          const metadataArray = cleanAndParseJSON(content)
+          const metadataArray = cleanAndParseJSON(content) as Record<string, string> | Record<string, string>[]
           return Array.isArray(metadataArray) ? metadataArray : [metadataArray]
         } catch {
           return selectedItems.map(() => createFallback('metadata'))
         }
       } else {
         try {
-          return cleanAndParseJSON(content)
+          return cleanAndParseJSON(content) as Record<string, string>
         } catch {
           return createFallback('metadata')
         }
@@ -147,8 +152,14 @@ export async function suggestPairings(
       return await getGenericPairingSuggestions(uploadedItemAnalysis)
     }
 
+    const uploadedFit = (uploadedItemAnalysis.fit || 'regular') as FitType
+    const uploadedType = categorizeItemType(uploadedItemAnalysis.detected_type || uploadedItemAnalysis.item_type || '')
+
     const wardrobeItemsList = wardrobeItems
-      .map((item, idx) => `${idx}: ${item.color} ${item.item_type || 'item'} (${item.formality}, ${item.material})`)
+      .map(
+        (item, idx) =>
+          `${idx}: ${item.color} ${item.item_type || 'item'} (fit: ${item.fit || 'regular'}, ${item.formality}, ${item.material})`
+      )
       .join('\n')
 
     const prompt = includeDetailedAnalysis
@@ -169,7 +180,14 @@ export async function suggestPairings(
     const content = response.choices[0]?.message?.content
     if (typeof content === 'string') {
       try {
-        const suggestions = cleanAndParseJSON(content)
+        const suggestions = cleanAndParseJSON(content) as Array<{
+          item_index: number
+          reason: string
+          matchScore: number
+          whatWorksWell?: string[]
+          whatCouldImprove?: string[]
+          stylingTips?: string[]
+        }>
         return suggestions.map(
           (s: {
             item_index: number
@@ -178,14 +196,43 @@ export async function suggestPairings(
             whatWorksWell?: string[]
             whatCouldImprove?: string[]
             stylingTips?: string[]
-          }) => ({
-            item: wardrobeItems[s.item_index],
-            reason: s.reason,
-            matchScore: s.matchScore,
-            ...(s.whatWorksWell && { whatWorksWell: s.whatWorksWell }),
-            ...(s.whatCouldImprove && { whatCouldImprove: s.whatCouldImprove }),
-            ...(s.stylingTips && { stylingTips: s.stylingTips }),
-          })
+          }) => {
+            const suggestionItem = wardrobeItems[s.item_index]
+            const suggestionFit = (suggestionItem.fit || 'regular') as FitType
+            const suggestionType = categorizeItemType(suggestionItem.item_type as string)
+
+            let adjustedMatchScore = s.matchScore
+            let fitNote = ''
+
+            // Apply fit compatibility adjustments (only for top/bottom pairings)
+            if (
+              (uploadedType === 'top' && suggestionType === 'bottom') ||
+              (uploadedType === 'bottom' && suggestionType === 'top')
+            ) {
+              const fitCompat = calculateFitCompatibility(uploadedFit, suggestionFit)
+              fitNote = ` | Fit pairing: ${fitCompat.reasoning}`
+
+              // Adjust score based on fit compatibility
+              if (fitCompat.score > 85) {
+                adjustedMatchScore = Math.min(100, adjustedMatchScore + 10)
+              } else if (fitCompat.score < 40) {
+                adjustedMatchScore = Math.max(0, adjustedMatchScore - 15)
+              }
+
+              if (fitCompat.warning) {
+                fitNote += ` ${fitCompat.warning}`
+              }
+            }
+
+            return {
+              item: suggestionItem,
+              reason: s.reason + fitNote,
+              matchScore: adjustedMatchScore,
+              ...(s.whatWorksWell && { whatWorksWell: s.whatWorksWell }),
+              ...(s.whatCouldImprove && { whatCouldImprove: s.whatCouldImprove }),
+              ...(s.stylingTips && { stylingTips: s.stylingTips }),
+            }
+          }
         )
       } catch (parseError) {
         console.error('[suggestPairings] Parse error:', parseError)
@@ -266,7 +313,11 @@ Return ONLY valid JSON, no markdown:
     const content = response.choices[0]?.message?.content
     if (typeof content === 'string') {
       try {
-        const suggestions = cleanAndParseJSON(content)
+        const suggestions = cleanAndParseJSON(content) as Array<{
+          item_type: string
+          reason: string
+          matchScore: number
+        }>
         return suggestions.map(
           (s: { item_type: string; reason: string; matchScore: number }) => ({
             item: { item_type: s.item_type, formality },
@@ -490,7 +541,7 @@ This item MUST be included in every outfit (as ${pieceType}Id in all 3 combinati
       messages: [
         {
           role: 'user',
-          content: PROMPTS.generateOutfits(selectedItemConstraint, topsList, bottomsList, shoesList, accessoriesList, selectedItemId, pieceType),
+          content: PROMPTS.generateOutfits(selectedItemConstraint, topsList, bottomsList, shoesList, accessoriesList),
         },
       ],
     })

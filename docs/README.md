@@ -1,90 +1,89 @@
-# Documentation
+# AI Wardrobe Assistant - Documentation
 
-This folder contains comprehensive documentation for the AI Wardrobe Assistant project.
+Complete documentation for the AI Wardrobe Assistant system.
 
 ## Quick Navigation
 
-### Getting Started
-- **[../README.md](../README.md)** - Main project overview, quick start guide
+### Core Documentation
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System design, API routes, component structure
+- **[API.md](./API.md)** - Complete API endpoint reference with examples
+- **[PROJECT.md](./PROJECT.md)** - High-level project overview and features
 
-### Technical Documentation
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** - System design, data flow, evaluation framework
-- **[API.md](API.md)** - REST API endpoint documentation with examples
+### Implementation Details
+See [implementation/](./implementation/) for detailed guides on specific features:
+- **[DESIGN_SYSTEM.md](./implementation/DESIGN_SYSTEM.md)** - UI design tokens, colors, typography
+- **[FIT_COMPATIBILITY_IMPLEMENTATION.md](./implementation/FIT_COMPATIBILITY_IMPLEMENTATION.md)** - Fit pairing system with senior stylist rules
+- **[STYLE_GUIDE.md](./implementation/STYLE_GUIDE.md)** - Code style, patterns, and conventions
+- **[OUTFIT_BUILDER_PROGRESS.md](./implementation/OUTFIT_BUILDER_PROGRESS.md)** - Outfit builder feature development notes
 
-### Phase 1 Reference (Historical)
-- **[phase-1/](phase-1/)** - Sub-phase documentation from initial development
-  - `PHASE_1_BUILD_PLAN.md` - Original development roadmap
-  - `PHASE_1_TEST_PLAN.md` - Testing strategy
-  - `PHASE_1_CONFIG.md` - Design decisions (v1)
-  - `PHASE_1A_README.md` - Initial setup notes
-  - `PHASE_1B_README.md` - Sub-phase 1b documentation
-  - `PROJECT.md` - Original product requirements
+### Performance & Optimization
+See [performance/](./performance/) for performance documentation:
+- **[PERFORMANCE.md](./performance/PERFORMANCE.md)** - Benchmarks, optimization details, and metrics
+- **[PERF_QUICK_REFERENCE.md](./performance/PERF_QUICK_REFERENCE.md)** - Quick reference for performance improvements
 
-## Document Purposes
+### Historical Documentation
+See [archive/](./archive/) for historical planning and phase documentation (archived).
 
-### README.md
-Entry point for new developers. Contains:
-- Quick start instructions
-- Project overview
-- Basic architecture
-- Development commands
-
-### ARCHITECTURE.md
-Deep dive into system design:
-- Component architecture
-- Data flow diagrams
-- Extraction prompt strategy
-- Evaluation framework details
-- Design decisions & rationale
-
-### API.md
-Complete API reference:
-- Endpoint specifications
-- Request/response formats
-- Error codes & handling
-- Code examples (JavaScript, Python)
-- Rate limiting & quotas
-
-### phase-1/
-Historical documentation from development phases. Reference only.
-
-## MVP Focus
-
-The current MVP focuses on **metadata extraction accuracy evaluation**:
-
-1. Extract metadata from clothing images using OpenAI Vision API
-2. Compare against ground truth using evaluation framework
-3. Measure accuracy across 7 metadata fields
-4. Identify improvement areas
-
-See [ARCHITECTURE.md](ARCHITECTURE.md) for evaluation framework details.
-
-## File Structure
+## Project Structure Overview
 
 ```
-docs/
-├── README.md                 # This file
-├── ARCHITECTURE.md           # System design & data flow
-├── API.md                   # API endpoints & examples
-└── phase-1/                 # Phase 1 reference materials
-    ├── PHASE_1_BUILD_PLAN.md
-    ├── PHASE_1_TEST_PLAN.md
-    ├── PHASE_1_CONFIG.md
-    ├── PHASE_1A_README.md
-    ├── PHASE_1B_README.md
-    └── PROJECT.md
+src/
+├── app/
+│   ├── api/                    (API routes)
+│   └── wardrobe/              (UI pages)
+├── components/                 (React components)
+├── lib/                        (Core utilities)
+│   ├── db.ts                  (Database layer with indexing)
+│   ├── openai.ts              (AI/LLM integration)
+│   ├── fit-compatibility.ts   (Fit pairing system)
+│   ├── validation.ts          (Input validation)
+│   ├── rateLimit.ts          (Rate limiting)
+│   └── ...
+├── config/
+│   └── prompts.ts            (LLM prompts)
+├── types/
+│   └── index.ts              (TypeScript types)
+├── hooks/                    (React hooks)
+└── styles/                   (CSS and design)
+
+middleware.ts                  (Next.js middleware - auth + rate limiting)
 ```
 
-## Next Steps
+## Key Features
 
-1. **Setup**: Follow steps in [../README.md](../README.md)
-2. **Understand Design**: Read [ARCHITECTURE.md](ARCHITECTURE.md)
-3. **Use APIs**: See [API.md](API.md) for endpoints
-4. **Evaluate**: Run `python tests/eval_extraction_accuracy.py`
+### 1. AI-Powered Detection & Analysis
+- GPT-4o vision for clothing detection
+- Metadata extraction (color, material, fit, formality)
+- Intelligent pairing suggestions
 
-## Maintenance
+### 2. Fit Compatibility System
+- Senior stylist rules encoded as scoring matrix
+- All 25 fit type combinations analyzed
+- Match scores adjusted based on fit balance
+- Body-type specific recommendations
 
-- Keep README.md in sync with current project status
-- Update ARCHITECTURE.md if system design changes
-- Update API.md when endpoints change
-- Archive old documentation in phase-1/ folder
+### 3. Performance Optimizations
+- **Database:** O(1) lookups via Map indexing (was O(n))
+- **API calls:** 62.5% reduction in suggest-pairing flow
+- **Code size:** 55% reduction in openai.ts
+- **I/O:** Async file operations with write coalescing
+
+### 4. Security & Rate Limiting
+- Centralized middleware for authentication
+- Per-route rate limiting
+- Health endpoint bypass for monitoring
+
+## Getting Started
+
+1. **Setup:** See root [README.md](../README.md) for installation
+2. **Development:** Run `npm run dev` to start dev server
+3. **API Testing:** Use endpoints documented in [API.md](./API.md)
+4. **Understanding Code:** Start with [ARCHITECTURE.md](./ARCHITECTURE.md)
+
+## Common Tasks
+
+- **Add new feature?** → Check [STYLE_GUIDE.md](./implementation/STYLE_GUIDE.md) for patterns
+- **Performance question?** → See [PERFORMANCE.md](./performance/PERFORMANCE.md)
+- **API endpoints?** → Refer to [API.md](./API.md)
+- **Design tokens?** → See [DESIGN_SYSTEM.md](./implementation/DESIGN_SYSTEM.md)
+- **Need fit compatibility info?** → Check [FIT_COMPATIBILITY_IMPLEMENTATION.md](./implementation/FIT_COMPATIBILITY_IMPLEMENTATION.md)

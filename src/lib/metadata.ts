@@ -21,7 +21,8 @@ export async function extractMetadataFromImage(
 
     const itemDescription = 'clothing item in wardrobe'
     const validMediaType = mediaType as 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif'
-    const metadata = await extractMetadata(base64Image, itemDescription, validMediaType)
+    const metadataResult = await extractMetadata(base64Image, itemDescription, validMediaType)
+    const metadata = (Array.isArray(metadataResult) ? metadataResult[0] : metadataResult) as Record<string, string>
 
     console.log('Extracted metadata:', metadata)
 

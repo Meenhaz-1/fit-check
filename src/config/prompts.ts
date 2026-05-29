@@ -362,6 +362,26 @@ SILHOUETTE HARMONY (15 points): Do the shapes work together to create confident 
 - Length balance (shirt/pants hemlines create intentional proportion) = +1 pt bonus
 - EXPERTISE: Does this balance make the wearer feel their best? +1 pt
 
+FIT PAIRING STRATEGY (20 points bonus when applied): Are the fit types working together brilliantly?
+SENIOR STYLIST RULES FOR FIT PAIRING:
+- OPTIMAL (loose top + fitted bottom OR fitted top + loose bottom) = +10 pts BONUS
+  * Loose top + fitted bottom: Shows shape below while allowing easy movement above
+  * Fitted top + loose bottom: Showcases upper silhouette while draping comfortably below
+- EXCELLENT (fitted + fitted with tapered bottoms) = +5 pts (clean lines, watch for stiffness)
+- CAUTION (two loose pieces, two oversized pieces, two slim pieces) = -5 pts PENALTY
+  * Loose + loose = shapeless tent silhouette (AVOID)
+  * Oversized + oversized = complete loss of definition (AVOID)
+  * Slim + slim = can look too tight and restrictive (risky for most occasions)
+- GOOD (loose + regular, regular + fitted, regular + regular) = +2 pts
+- AVOID COMBINATIONS:
+  * Two loose pieces (creates unflattering bulk)
+  * Two oversized pieces (no visual definition)
+  * Loose oversized + loose (maximum shapelessness)
+
+FIT CATEGORIES: slim (very fitted), fitted (follows curves), regular (standard fit), loose (relaxed drape), oversized (intentionally large)
+
+When selecting top + bottom combinations, PRIORITIZE creating visual balance through fit contrast. This is critical to flattering proportions.
+
 FORMALITY CONSISTENCY (10 points): Does the formality level feel authentic and appropriate?
 - All pieces same formality level (casual-casual, business-business, cohesive) = 10 pts
 - Adjacent levels acceptable (business casual + casual = +1 level ok, intentional) = 8-9 pts
