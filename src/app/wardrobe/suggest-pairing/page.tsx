@@ -1,36 +1,54 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { apiFetch } from '@/lib/apiFetch'
-import type { Suggestion } from '@/types'
+import type { OutfitSuggestion } from '@/types'
 
-interface UploadedItem {
-  detected_type: string
+interface WardrobeItem {
+  id: string
+  item_type: string
   color: string
-  formality: string
   material: string
-  fit: string
-  silhouette: string
   visual_weight: string
+  formality: string
+  imageUrl?: string
 }
 
-export default function SuggestPairingPage() {
+export default function OutfitBuilder() {
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [activeTab, setActiveTab] = useState<'upload' | 'select'>('upload')
   const [imagePreview, setImagePreview] = useState<string | null>(null)
-  const [mediaType, setMediaType] = useState<string | null>(null)
+  const [wardrobeItems, setWardrobeItems] = useState<WardrobeItem[]>([])
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [uploadedItem, setUploadedItem] = useState<UploadedItem | null>(null)
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([])
+  const [outfitSuggestions, setOutfitSuggestions] = useState<OutfitSuggestion[]>([])
+  const [detectedPiece, setDetectedPiece] = useState<{ type: string; metadata: Record<string, string> } | null>(null)
+
+  // Fetch wardrobe items for the select tab
+  useEffect(() => {
+    const fetchWardrobeItems = async () => {
+      try {
+        const response = await apiFetch('/api/wardrobe/items', { method: 'GET' })
+        const data = await response.json()
+        if (response.ok && data.items) {
+          setWardrobeItems(data.items)
+        }
+      } catch (err) {
+        console.error('Failed to fetch wardrobe items:', err)
+      }
+    }
+    fetchWardrobeItems()
+  }, [])
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
 
     setError(null)
-    setSuggestions([])
-    setUploadedItem(null)
+    setOutfitSuggestions([])
+    setDetectedPiece(null)
 
     if (!file.type.startsWith('image/')) {
       setError('Please select a valid image file')
@@ -38,43 +56,97 @@ export default function SuggestPairingPage() {
     }
 
     const reader = new FileReader()
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       const base64 = e.target?.result as string
       setImagePreview(base64)
-      setMediaType(file.type || 'image/jpeg')
+
+      // Call the outfit builder upload endpoint
+      setLoading(true)
+      try {
+        const response = await apiFetch('/api/wardrobe/outfit-builder/upload', {
+          method: 'POST',
+          body: JSON.stringify({
+            image: base64,
+            mediaType: file.type || 'image/jpeg',
+          }),
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+          setError(data.error || 'Failed to generate outfit suggestions')
+        } else {
+          setDetectedPiece(data.detectedPiece)
+          setOutfitSuggestions(data.outfitSuggestions || [])
+          if (data.message) {
+            setError(data.message) // Show info message if wardrobe is empty
+          }
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to generate outfits')
+      } finally {
+        setLoading(false)
+      }
     }
 
     reader.readAsDataURL(file)
   }
 
-  const handleSuggestPairings = async () => {
-    if (!imagePreview) {
-      setError('Please upload an image first')
-      return
+  const handleSelectItem = async (itemId: string) => {
+    setSelectedItemId(itemId)
+    setError(null)
+    setOutfitSuggestions([])
+    setDetectedPiece(null)
+    setImagePreview(null)
+
+    const selectedItem = wardrobeItems.find((item) => item.id === itemId)
+    if (!selectedItem) return
+
+    // Determine item type
+    let itemType: 'top' | 'bottom' | 'shoes' = 'top'
+    const itemLower = selectedItem.item_type.toLowerCase()
+    if (
+      itemLower.includes('pant') ||
+      itemLower.includes('trouser') ||
+      itemLower.includes('jean') ||
+      itemLower.includes('skirt') ||
+      itemLower.includes('short')
+    ) {
+      itemType = 'bottom'
+    } else if (
+      itemLower.includes('shoe') ||
+      itemLower.includes('boot') ||
+      itemLower.includes('sneaker') ||
+      itemLower.includes('loafer') ||
+      itemLower.includes('sandal')
+    ) {
+      itemType = 'shoes'
     }
 
+    // Call the outfit builder select endpoint
     setLoading(true)
-    setError(null)
-
     try {
-      const response = await apiFetch('/api/wardrobe/suggest-pairing', {
+      const response = await apiFetch('/api/wardrobe/outfit-builder/select', {
         method: 'POST',
         body: JSON.stringify({
-          image: imagePreview,
-          mediaType: mediaType || 'image/jpeg',
+          itemId,
+          itemType,
         }),
       })
 
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to get pairing suggestions')
+        setError(data.error || 'Failed to generate outfit suggestions')
+      } else {
+        setDetectedPiece(data.detectedPiece)
+        setOutfitSuggestions(data.outfitSuggestions || [])
+        if (data.message) {
+          setError(data.message)
+        }
       }
-
-      setUploadedItem(data.uploadedItem)
-      setSuggestions(data.suggestions || [])
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to get pairing suggestions')
+      setError(err instanceof Error ? err.message : 'Failed to generate outfits')
     } finally {
       setLoading(false)
     }
@@ -82,223 +154,364 @@ export default function SuggestPairingPage() {
 
   const handleReset = () => {
     setImagePreview(null)
-    setMediaType(null)
-    setUploadedItem(null)
-    setSuggestions([])
+    setSelectedItemId(null)
     setError(null)
+    setOutfitSuggestions([])
+    setDetectedPiece(null)
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
   return (
-    <div className="min-h-screen bg-surface-base">
-      {/* Header */}
-      <div className="border-b border-divider">
-        <div className="max-w-4xl mx-auto px-6 py-16">
-          <h1 className="text-4xl font-bold text-primary mb-2">Suggest Pairing</h1>
-          <p className="text-text-secondary">Upload a clothing item to find what goes with it</p>
+    <div className="bg-surface min-h-screen">
+      {/* ── Header ────────────────────────────────────────────────────────── */}
+      <div className="border-b border-outline-variant">
+        <div className="max-w-atelier mx-auto px-16 py-16">
+          <p className="label-caps mb-4">Outfit Builder</p>
+          <h1 className="font-serif text-headline-md font-normal text-on-surface mb-3">
+            Build Complete Outfits
+          </h1>
+          <p className="text-sm text-on-surface-variant max-w-md">
+            Upload a new piece or select from your wardrobe. Get 3 complete outfit suggestions
+            with styling explanations and occasions.
+          </p>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-6 py-12">
-        {/* Upload Area */}
-        {!imagePreview ? (
-          <label className="block mb-12">
-            <div className="border-2 border-divider rounded-lg p-12 text-center cursor-pointer hover:border-accent transition-colors duration-150">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileSelect}
-                className="sr-only"
-              />
-              <div className="text-5xl mb-4">📷</div>
-              <p className="text-lg font-semibold text-primary mb-2">Click to upload or drag and drop</p>
-              <p className="text-sm text-text-secondary">JPG, PNG, GIF up to 10MB</p>
-            </div>
-          </label>
-        ) : (
-          <div className="mb-12">
-            <div className="rounded-lg border border-divider shadow-sm bg-gray-100 p-4">
-              <img src={imagePreview} alt="Preview" className="w-full h-auto object-contain" />
-            </div>
+      {/* ── Tabs ──────────────────────────────────────────────────────────── */}
+      <div className="border-b border-outline-variant">
+        <div className="max-w-atelier mx-auto px-16">
+          <div className="flex gap-8">
             <button
               onClick={() => {
-                setImagePreview(null)
-                setMediaType(null)
-                if (fileInputRef.current) fileInputRef.current.value = ''
+                setActiveTab('upload')
+                handleReset()
               }}
-              className="mt-4 text-accent hover:text-accent-dark text-sm font-medium transition-colors"
+              className={`py-4 label-caps transition-colors duration-150 ${
+                activeTab === 'upload'
+                  ? 'text-on-surface border-b border-on-surface'
+                  : 'text-outline hover:text-on-surface-variant'
+              }`}
             >
-              ← Change image
+              Upload New Piece
             </button>
-          </div>
-        )}
-
-        {/* Status Messages */}
-        {error && (
-          <div className="mb-6 p-4 bg-error-bg border border-error rounded-lg">
-            <p className="text-sm font-medium text-error">⚠ {error}</p>
-          </div>
-        )}
-
-        {/* Analyze Button */}
-        {imagePreview && !uploadedItem && (
-          <div className="mb-12">
             <button
-              onClick={handleSuggestPairings}
-              disabled={loading}
-              className="w-full px-6 py-3 bg-accent text-white font-medium rounded-lg hover:bg-accent-dark transition-colors duration-150 disabled:opacity-50"
+              onClick={() => {
+                setActiveTab('select')
+                handleReset()
+              }}
+              className={`py-4 label-caps transition-colors duration-150 ${
+                activeTab === 'select'
+                  ? 'text-on-surface border-b border-on-surface'
+                  : 'text-outline hover:text-on-surface-variant'
+              }`}
             >
-              {loading ? '⟳ Analyzing...' : '✓ Find Pairings'}
+              Select from Wardrobe
             </button>
           </div>
-        )}
+        </div>
+      </div>
 
-        {/* Uploaded Item Analysis */}
-        {uploadedItem && (
-          <div className="mb-12 p-6 bg-surface-elevated border border-divider rounded-lg">
-            <h2 className="text-xl font-semibold text-primary mb-6">Uploaded Item</h2>
-            <div className="space-y-3">
-              <div className="flex justify-between text-sm">
-                <span className="text-text-secondary font-medium">Type</span>
-                <span className="text-text-primary capitalize">{uploadedItem.detected_type}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-text-secondary font-medium">Color</span>
-                <span className="text-text-primary">{uploadedItem.color}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-text-secondary font-medium">Material</span>
-                <span className="text-text-primary">{uploadedItem.material}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-text-secondary font-medium">Formality</span>
-                <span className="text-text-primary capitalize">{uploadedItem.formality}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-text-secondary font-medium">Fit</span>
-                <span className="text-text-primary capitalize">{uploadedItem.fit}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-text-secondary font-medium">Silhouette</span>
-                <span className="text-text-primary capitalize">{uploadedItem.silhouette}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-text-secondary font-medium">Visual Weight</span>
-                <span className="text-text-primary capitalize">{uploadedItem.visual_weight}</span>
-              </div>
+      <div className="max-w-atelier mx-auto px-16 py-16">
+        {/* ── UPLOAD TAB ────────────────────────────────────────────────── */}
+        {activeTab === 'upload' && (
+          <div className="grid grid-cols-2 gap-24">
+            {/* Left: Image upload */}
+            <div>
+              {!imagePreview ? (
+                <label className="block cursor-pointer group">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                    className="sr-only"
+                  />
+                  <div className="border border-outline-variant bg-surface-low aspect-[3/4] flex flex-col items-center justify-center group-hover:border-on-surface transition-colors duration-150">
+                    <div className="w-10 h-10 border border-outline flex items-center justify-center mb-6">
+                      <span className="text-lg text-outline">+</span>
+                    </div>
+                    <p className="label-caps mb-2">Upload Photograph</p>
+                    <p className="text-xs text-outline">JPG, PNG up to 10 MB</p>
+                  </div>
+                </label>
+              ) : (
+                <div>
+                  <div className="border border-outline-variant bg-surface-container aspect-[3/4] overflow-hidden flex items-center justify-center">
+                    <img
+                      src={imagePreview}
+                      alt="Uploaded piece preview"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <button
+                    onClick={handleReset}
+                    className="mt-4 label-caps text-outline hover:text-on-surface transition-colors duration-150"
+                  >
+                    ← Replace Image
+                  </button>
+                </div>
+              )}
             </div>
-          </div>
-        )}
 
-        {/* Suggestions */}
-        {suggestions.length > 0 && (
-          <div className="mb-12">
-            <h2 className="text-xl font-semibold text-primary mb-6">Suggested Pairings</h2>
-            <div className="space-y-4">
-              {suggestions.map((suggestion, index) => (
-                <div
-                  key={index}
-                  className="p-6 bg-surface-elevated border border-divider rounded-lg hover:shadow-md transition-shadow"
-                >
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <p className="text-sm font-semibold text-primary">
-                        {suggestion.item.color && (suggestion.item as any).item_type
-                          ? `${suggestion.item.color} ${(suggestion.item as any).item_type}`
-                          : (suggestion.item as any).item_type || 'Suggested item'}
+            {/* Right: Results */}
+            <div>
+              {error && (
+                <div className="mb-8 p-4 border border-error bg-error-container">
+                  <p className="text-sm text-error">{error}</p>
+                </div>
+              )}
+
+              {loading && (
+                <div className="text-center py-8">
+                  <p className="label-caps text-outline animate-pulse">Generating outfits...</p>
+                </div>
+              )}
+
+              {outfitSuggestions.length > 0 && (
+                <div className="space-y-6">
+                  <div>
+                    <h2 className="font-serif text-xl font-normal text-on-surface mb-2">
+                      Suggested Outfits
+                    </h2>
+                    {detectedPiece && (
+                      <p className="text-sm text-on-surface-variant">
+                        Based on: {detectedPiece.type}
                       </p>
-                      {suggestion.item.material && (
-                        <p className="text-xs text-text-secondary mt-1">{suggestion.item.material}</p>
-                      )}
-                    </div>
-                    <div className="text-right">
-                      <div className="text-lg font-bold text-accent">{suggestion.matchScore}%</div>
-                      <div className="text-xs text-text-secondary">Match</div>
-                    </div>
+                    )}
                   </div>
 
-                  {/* What Works Well */}
-                  {(suggestion as any).whatWorksWell && (suggestion as any).whatWorksWell.length > 0 && (
-                    <div className="mb-4">
-                      <h4 className="text-xs font-semibold text-green-700 mb-2">✓ What works well:</h4>
-                      <ul className="space-y-1">
-                        {(suggestion as any).whatWorksWell.map((point: string, i: number) => (
-                          <li key={i} className="text-xs text-text-primary">• {point}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                  {outfitSuggestions.map((outfit, idx) => (
+                    <OutfitCard key={idx} outfit={outfit} />
+                  ))}
 
-                  {/* What Could Improve */}
-                  {(suggestion as any).whatCouldImprove && (suggestion as any).whatCouldImprove.length > 0 && (
-                    <div className="mb-4">
-                      <h4 className="text-xs font-semibold text-orange-700 mb-2">⚠ What could improve:</h4>
-                      <ul className="space-y-1">
-                        {(suggestion as any).whatCouldImprove.map((point: string, i: number) => (
-                          <li key={i} className="text-xs text-text-primary">• {point}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {/* Styling Tips */}
-                  {(suggestion as any).stylingTips && (suggestion as any).stylingTips.length > 0 && (
-                    <div>
-                      <h4 className="text-xs font-semibold text-accent mb-2">→ Styling tips:</h4>
-                      <ul className="space-y-1">
-                        {(suggestion as any).stylingTips.map((tip: string, i: number) => (
-                          <li key={i} className="text-xs text-text-primary">• {tip}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {/* Fallback to reason if no detailed analysis */}
-                  {(!((suggestion as any).whatWorksWell && (suggestion as any).whatWorksWell.length > 0)) && (
-                    <p className="text-sm text-text-primary">{suggestion.reason}</p>
-                  )}
+                  <button
+                    onClick={handleReset}
+                    className="w-full px-6 py-3 border border-outline text-on-surface-variant text-sm font-medium tracking-btn uppercase hover:border-on-surface hover:text-on-surface transition-colors duration-150"
+                  >
+                    Start Over
+                  </button>
                 </div>
-              ))}
+              )}
+
+              {!loading && outfitSuggestions.length === 0 && !imagePreview && (
+                <div className="border-t border-outline-variant pt-8">
+                  <p className="text-sm text-on-surface-variant">
+                    Upload a photo to get outfit suggestions.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         )}
 
-        {/* No Suggestions Message */}
-        {uploadedItem && suggestions.length === 0 && !loading && (
-          <div className="mb-12 p-6 bg-surface-elevated border border-divider rounded-lg text-center">
-            <p className="text-text-secondary">No matching items found in your wardrobe</p>
-            <p className="text-sm text-text-secondary mt-2">
-              Upload more items to get pairing suggestions
-            </p>
-          </div>
-        )}
+        {/* ── SELECT TAB ────────────────────────────────────────────────– */}
+        {activeTab === 'select' && (
+          <div>
+            {wardrobeItems.length === 0 ? (
+              <div className="text-center py-16 border border-outline-variant">
+                <h2 className="font-serif text-headline-sm font-normal text-on-surface mb-4">
+                  Your wardrobe is empty
+                </h2>
+                <p className="text-sm text-on-surface-variant mb-8">
+                  Add items to your wardrobe first to use the outfit builder.
+                </p>
+                <Link
+                  href="/wardrobe"
+                  className="px-8 py-4 bg-on-surface text-surface text-sm font-medium tracking-btn uppercase hover:bg-black transition-colors duration-150"
+                >
+                  + Add Items
+                </Link>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-24">
+                {/* Left: Gallery preview */}
+                <div>
+                  <p className="label-caps mb-6">Click an item to build outfits around it:</p>
+                  <div className="grid grid-cols-2 gap-4">
+                    {wardrobeItems.map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => handleSelectItem(item.id)}
+                        disabled={loading}
+                        className={`group relative overflow-hidden border-2 transition-all duration-150 ${
+                          selectedItemId === item.id
+                            ? 'border-on-surface bg-surface-container'
+                            : 'border-outline-variant hover:border-on-surface'
+                        } ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                      >
+                        <div className="aspect-[3/4] bg-surface-low flex items-center justify-center overflow-hidden">
+                          {item.imageUrl ? (
+                            <img
+                              src={item.imageUrl}
+                              alt={item.item_type}
+                              className="w-full h-full object-contain"
+                            />
+                          ) : (
+                            <span className="label-caps text-outline">{item.item_type.charAt(0)}</span>
+                          )}
+                        </div>
+                        <div className="p-3 bg-surface-container">
+                          <p className="text-xs font-medium text-on-surface truncate">{item.item_type}</p>
+                          <p className="text-xs text-on-surface-variant">{item.color}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-        {/* Action Buttons */}
-        {uploadedItem && (
-          <div className="flex gap-3 pt-6 border-t border-divider">
-            <button
-              onClick={handleReset}
-              className="px-6 py-3 border border-border text-primary font-medium rounded-lg hover:bg-surface-hover transition-colors duration-150"
-            >
-              Try Another
-            </button>
-            <Link
-              href="/wardrobe/gallery"
-              className="flex-1 px-6 py-3 bg-accent text-white font-medium rounded-lg hover:bg-accent-dark transition-colors duration-150 text-center"
-            >
-              View Wardrobe
-            </Link>
-          </div>
-        )}
+                {/* Right: Results */}
+                <div>
+                  {error && (
+                    <div className="mb-8 p-4 border border-error bg-error-container">
+                      <p className="text-sm text-error">{error}</p>
+                    </div>
+                  )}
 
-        {/* Empty State */}
-        {!imagePreview && !uploadedItem && (
-          <div className="text-center py-12">
-            <p className="text-text-secondary">Select an image to get pairing suggestions</p>
+                  {loading && (
+                    <div className="text-center py-8">
+                      <p className="label-caps text-outline animate-pulse">Generating outfits...</p>
+                    </div>
+                  )}
+
+                  {outfitSuggestions.length > 0 && (
+                    <div className="space-y-6">
+                      <div>
+                        <h2 className="font-serif text-xl font-normal text-on-surface mb-2">
+                          Suggested Outfits
+                        </h2>
+                        {detectedPiece && (
+                          <p className="text-sm text-on-surface-variant">
+                            Based on: {detectedPiece.type}
+                          </p>
+                        )}
+                      </div>
+
+                      {outfitSuggestions.map((outfit, idx) => (
+                        <OutfitCard key={idx} outfit={outfit} />
+                      ))}
+
+                      <button
+                        onClick={handleReset}
+                        className="w-full px-6 py-3 border border-outline text-on-surface-variant text-sm font-medium tracking-btn uppercase hover:border-on-surface hover:text-on-surface transition-colors duration-150"
+                      >
+                        Clear Selection
+                      </button>
+                    </div>
+                  )}
+
+                  {!loading && outfitSuggestions.length === 0 && !selectedItemId && (
+                    <div className="border-t border-outline-variant pt-8">
+                      <p className="text-sm text-on-surface-variant">
+                        Select a wardrobe item on the left to generate outfit combinations.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+// Outfit Card Component
+function OutfitCard({ outfit }: { outfit: OutfitSuggestion }) {
+  return (
+    <div className="p-6 border border-outline-variant bg-surface-container rounded-lg space-y-4">
+      {/* Match Score */}
+      <div className="flex items-center justify-between">
+        <h3 className="font-serif text-lg font-normal text-on-surface">Outfit {outfit.id}</h3>
+        <span className="text-sm font-bold text-on-surface">{outfit.matchScore}% match</span>
+      </div>
+
+      {/* Outfit Items Preview */}
+      <div className="flex gap-3">
+        {outfit.top && (
+          <div className="flex-1">
+            <div className="aspect-[2/3] bg-surface-low border border-outline-variant flex items-center justify-center mb-2 overflow-hidden">
+              {outfit.top.imageUrl ? (
+                <img
+                  src={outfit.top.imageUrl}
+                  alt={outfit.top.item_type}
+                  className="w-full h-full object-contain"
+                />
+              ) : (
+                <span className="text-xs text-outline text-center px-2">{outfit.top.item_type}</span>
+              )}
+            </div>
+            <p className="text-xs text-on-surface-variant text-center truncate">{outfit.top.item_type}</p>
+            <p className="text-xs text-outline text-center">{outfit.top.color}</p>
+          </div>
+        )}
+
+        {outfit.bottom && (
+          <div className="flex-1">
+            <div className="aspect-[2/3] bg-surface-low border border-outline-variant flex items-center justify-center mb-2 overflow-hidden">
+              {outfit.bottom.imageUrl ? (
+                <img
+                  src={outfit.bottom.imageUrl}
+                  alt={outfit.bottom.item_type}
+                  className="w-full h-full object-contain"
+                />
+              ) : (
+                <span className="text-xs text-outline text-center px-2">{outfit.bottom.item_type}</span>
+              )}
+            </div>
+            <p className="text-xs text-on-surface-variant text-center truncate">{outfit.bottom.item_type}</p>
+            <p className="text-xs text-outline text-center">{outfit.bottom.color}</p>
+          </div>
+        )}
+
+        {outfit.shoes && (
+          <div className="flex-1">
+            <div className="aspect-[2/3] bg-surface-low border border-outline-variant flex items-center justify-center mb-2 overflow-hidden">
+              {outfit.shoes.imageUrl ? (
+                <img
+                  src={outfit.shoes.imageUrl}
+                  alt={outfit.shoes.item_type}
+                  className="w-full h-full object-contain"
+                />
+              ) : (
+                <span className="text-xs text-outline text-center px-2">{outfit.shoes.item_type}</span>
+              )}
+            </div>
+            <p className="text-xs text-on-surface-variant text-center truncate">{outfit.shoes.item_type}</p>
+            <p className="text-xs text-outline text-center">{outfit.shoes.color}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Why It Works */}
+      <div className="pt-4 border-t border-outline-variant">
+        <p className="text-xs font-semibold text-on-surface mb-2">Why it works:</p>
+        <p className="text-xs text-on-surface-variant leading-relaxed">{outfit.whyItWorks}</p>
+      </div>
+
+      {/* Occasions */}
+      {outfit.occasions && outfit.occasions.length > 0 && (
+        <div>
+          <p className="text-xs font-semibold text-on-surface mb-2">Perfect for:</p>
+          <div className="flex flex-wrap gap-2">
+            {outfit.occasions.map((occasion, idx) => (
+              <span
+                key={idx}
+                className="px-3 py-1.5 bg-secondary text-on-secondary text-xs font-medium rounded label-caps hover:bg-secondary-dark transition-colors"
+              >
+                {occasion}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Missing Items */}
+      {outfit.missingItems && outfit.missingItems.length > 0 && (
+        <div className="pt-2">
+          <p className="text-xs text-error">⚠ Missing: {outfit.missingItems.join(', ')}</p>
+        </div>
+      )}
     </div>
   )
 }
