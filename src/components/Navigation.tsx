@@ -3,54 +3,44 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
+const NAV_LINKS = [
+  { href: '/style', label: 'Style ID', short: 'Style' },
+  { href: '/wardrobe/gallery', label: 'My Wardrobe', short: 'Wardrobe' },
+  { href: '/wardrobe/suggest-pairing', label: 'Outfit Builder', short: 'Outfits' },
+  { href: '/wardrobe/evaluate-item', label: 'Purchase Consultant', short: 'Evaluate' },
+]
+
 export function Navigation() {
   const pathname = usePathname()
 
-  const isActive = (path: string) => pathname === path
+  const isActive = (href: string) =>
+    pathname === href || (href !== '/' && pathname.startsWith(href))
 
   return (
-    <nav className="bg-white border-b border-divider sticky top-0 z-50">
-      <div className="max-w-6xl mx-auto px-6 py-4">
-        <div className="flex justify-between items-center">
-          <Link
-            href="/"
-            className="text-xl font-bold text-primary hover:text-primary-dark transition-colors"
-          >
-            Wardrobe
-          </Link>
+    <nav className="bg-surface border-b border-outline-variant sticky top-0 z-50">
+      <div className="max-w-atelier mx-auto px-3 sm:px-6 md:px-8 lg:px-16 h-14 sm:h-16 flex items-center justify-between gap-3 sm:gap-6">
+        <Link
+          href="/"
+          className="font-serif text-xs sm:text-base font-normal tracking-wide text-on-surface hover:text-on-surface-variant transition-colors duration-150 flex-shrink-0"
+        >
+          Atelier Digital
+        </Link>
 
-          <div className="flex gap-12">
+        <div className="flex items-center gap-1.5 sm:gap-4 md:gap-6 lg:gap-10 flex-shrink overflow-hidden">
+          {NAV_LINKS.map(({ href, label, short }) => (
             <Link
-              href="/"
-              className={`text-sm font-medium transition-colors duration-150 ${
-                isActive('/')
-                  ? 'text-primary border-b-2 border-primary'
-                  : 'text-text-secondary hover:text-primary'
+              key={href}
+              href={href}
+              className={`label-caps text-xs sm:text-xs md:text-sm transition-colors duration-150 whitespace-nowrap ${
+                isActive(href)
+                  ? 'text-on-surface border-b border-on-surface pb-px'
+                  : 'text-outline hover:text-on-surface-variant'
               }`}
             >
-              Home
+              <span className="sm:hidden">{short}</span>
+              <span className="hidden sm:inline">{label}</span>
             </Link>
-            <Link
-              href="/wardrobe"
-              className={`text-sm font-medium transition-colors duration-150 ${
-                isActive('/wardrobe')
-                  ? 'text-primary border-b-2 border-primary'
-                  : 'text-text-secondary hover:text-primary'
-              }`}
-            >
-              Upload
-            </Link>
-            <Link
-              href="/wardrobe/gallery"
-              className={`text-sm font-medium transition-colors duration-150 ${
-                isActive('/wardrobe/gallery')
-                  ? 'text-primary border-b-2 border-primary'
-                  : 'text-text-secondary hover:text-primary'
-              }`}
-            >
-              Gallery
-            </Link>
-          </div>
+          ))}
         </div>
       </div>
     </nav>
