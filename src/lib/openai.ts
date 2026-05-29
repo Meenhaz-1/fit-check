@@ -431,4 +431,137 @@ function getHardcodedFallback(
   ]
 }
 
+export async function evaluateOutfit(
+  detectedItems: Array<{ type: string; color: string; material: string; formality: string; fit: string; silhouette: string; visual_weight: string }>
+): Promise<{
+  whatWorksWell: string[]
+  whatCouldImprove: string[]
+  specificStylingRecommendations: string[]
+  occasions: string[]
+  verdict?: 'Buy' | 'Maybe' | 'Do Not Buy'
+  verdictReasoning?: string
+  colorHarmony: number
+  proportionBalance: number
+  formalityAlignment: number
+  overallCohesion: number
+}> {
+  try {
+    console.log('[evaluateOutfit] Analyzing', detectedItems.length, 'items')
+
+    const itemsList = detectedItems
+      .map((item, idx) => `${idx + 1}. ${item.color} ${item.type} (${item.material}, ${item.formality}, ${item.fit}, ${item.silhouette}, ${item.visual_weight})`)
+      .join('\n')
+
+    const response = await client.chat.completions.create({
+      model: 'gpt-4o',
+      max_tokens: 2048,
+      messages: [
+        {
+          role: 'user',
+          content: `You are a professional fashion stylist evaluating a complete outfit.
+
+DETECTED ITEMS IN OUTFIT:
+${itemsList}
+
+COMPREHENSIVE EVALUATION REQUIREMENTS:
+
+1. COLOR HARMONY - How do the colors work together? Any clashing or complementary?
+2. PROPORTIONS - Are sleeve lengths, hem lengths, and fit proportions balanced?
+3. VISUAL WEIGHT DISTRIBUTION - Is the outfit balanced or is one piece too heavy/light?
+4. FORMALITY ALIGNMENT - Do all pieces match the same formality level?
+5. STYLE COHESION - Do all pieces feel intentional together?
+6. OCCASIONS - What specific settings or events suit this outfit?
+
+RESPONSE REQUIREMENTS:
+- MUST provide specific, actionable feedback
+- Reference specific properties from the items (colors, materials, fit)
+- Provide 3-4 points for "What works well" and 2-3 for "What could improve"
+- Include 3-4 specific styling tips (e.g., "tuck the shirt", "roll sleeves", "add a belt")
+- Rate each analysis dimension (0-100): color harmony, proportion balance, formality alignment, overall cohesion
+- Optional: Include verdict ("Buy"/"Maybe"/"Do Not Buy") only if you have strong opinion based on occasion
+- List 3-4 occasions this outfit is perfect for
+
+Return ONLY valid JSON with this exact structure:
+{
+  "whatWorksWell": [
+    "Specific observation 1 referencing the items",
+    "Specific observation 2",
+    "Specific observation 3"
+  ],
+  "whatCouldImprove": [
+    "Specific critique 1 with suggested solution",
+    "Specific critique 2 with suggested solution"
+  ],
+  "specificStylingRecommendations": [
+    "Actionable tip 1 (e.g., tuck the shirt or roll sleeves)",
+    "Actionable tip 2",
+    "Actionable tip 3"
+  ],
+  "occasions": ["setting 1", "setting 2", "setting 3"],
+  "verdict": "Buy or Maybe or Do Not Buy (optional - only if evaluating for purchase)",
+  "verdictReasoning": "Brief reason if verdict provided (optional)",
+  "colorHarmony": 85,
+  "proportionBalance": 78,
+  "formalityAlignment": 88,
+  "overallCohesion": 82
+}
+
+NO markdown, no explanations, ONLY JSON.`,
+        },
+      ],
+    })
+
+    const content = response.choices[0]?.message?.content
+    console.log('[evaluateOutfit] Raw GPT response length:', content?.length)
+
+    if (typeof content === 'string') {
+      try {
+        // Strip markdown code blocks if present
+        let jsonContent = content.trim()
+        if (jsonContent.startsWith('```json')) {
+          jsonContent = jsonContent.replace(/^```json\s*/, '').replace(/\s*```$/, '')
+        } else if (jsonContent.startsWith('```')) {
+          jsonContent = jsonContent.replace(/^```\s*/, '').replace(/\s*```$/, '')
+        }
+
+        const evaluation = JSON.parse(jsonContent)
+        console.log('[evaluateOutfit] Successfully parsed evaluation')
+        return evaluation
+      } catch (parseError) {
+        console.error('[evaluateOutfit] JSON parse error:', parseError, 'Content:', content?.substring(0, 300))
+        return getEvaluationFallback()
+      }
+    }
+
+    console.log('[evaluateOutfit] No content from GPT response')
+    return getEvaluationFallback()
+  } catch (error) {
+    console.error('[evaluateOutfit] Error:', error)
+    throw error
+  }
+}
+
+function getEvaluationFallback() {
+  return {
+    whatWorksWell: [
+      'The outfit pieces are coordinated in color and formality',
+      'All items appear to be chosen intentionally',
+    ],
+    whatCouldImprove: [
+      'Consider specific fit adjustments for optimal proportions',
+      'Ensure all pieces align with the intended occasion',
+    ],
+    specificStylingRecommendations: [
+      'Adjust fit where needed for visual balance',
+      'Verify all pieces match your desired formality level',
+      'Consider adding complementary accessories',
+    ],
+    occasions: ['casual', 'professional', 'everyday'],
+    colorHarmony: 70,
+    proportionBalance: 70,
+    formalityAlignment: 75,
+    overallCohesion: 70,
+  }
+}
+
 export { client }

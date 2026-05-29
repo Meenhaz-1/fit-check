@@ -45,34 +45,27 @@ export default function Home() {
             3. Evaluate Item
           </h2>
           <p className="text-gray-600 mb-4">
-            Upload a screenshot or photo of an item. AI will recommend wardrobe
-            pairings and give a verdict.
+            Upload a photo of your styled outfit. AI will analyze the complete look and give professional styling feedback with a verdict.
           </p>
-          <button
-            onClick={() => {
-              alert('Sub-Phase 1c: Coming soon')
-            }}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Evaluate
-          </button>
+          <Link href="/wardrobe/evaluate-item" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 inline-block">
+            Evaluate Outfit
+          </Link>
         </div>
       </div>
 
       <div className="bg-green-50 border border-green-200 rounded-lg p-6">
         <h3 className="text-lg font-bold text-green-900 mb-2">
-          Phase 1b: Wardrobe Upload & Metadata Extraction
+          Phase 1: MVP Progress
         </h3>
         <p className="text-green-800">
-          Upload wardrobe items with AI-powered metadata extraction. Review and correct metadata before saving.
+          AI-powered wardrobe management with professional styling feedback.
         </p>
         <ul className="list-disc list-inside text-green-800 mt-2 space-y-1">
           <li>✅ Phase 1a: Setup & Infrastructure complete</li>
-          <li>✅ File upload handler ready</li>
-          <li>✅ OpenAI Vision integration ready</li>
-          <li>✅ Metadata extraction endpoint live</li>
-          <li>✅ Wardrobe page with UI ready</li>
-          <li>⏳ Sub-Phase 1c: Screenshot Upload & Item Detection (Next)</li>
+          <li>✅ Phase 1b: Wardrobe Upload & Metadata Extraction</li>
+          <li>✅ Phase 1d: Suggest Pairing with detailed feedback</li>
+          <li>✅ Phase 1c: Evaluate Item (complete outfit analysis)</li>
+          <li>⏳ Phase 1d Enhancement: Structured suggestion feedback (Next)</li>
         </ul>
       </div>
 

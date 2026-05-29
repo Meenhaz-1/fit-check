@@ -65,3 +65,29 @@ export interface ApiErrorResponse {
 }
 
 export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse
+
+export interface EvaluationAnalysis {
+  whatWorksWell: string[]
+  whatCouldImprove: string[]
+  specificStylingRecommendations: string[]
+  verdict?: 'Buy' | 'Maybe' | 'Do Not Buy'
+  verdictReasoning?: string
+  occasions: string[]
+  colorHarmony: number  // 0-100
+  proportionBalance: number  // 0-100
+  formalityAlignment: number  // 0-100
+  overallCohesion: number  // 0-100
+}
+
+export interface EvaluateItemRequest {
+  image: string
+  mediaType?: string
+}
+
+export interface EvaluateItemResponse {
+  success: boolean
+  detectedItems?: string[]
+  evaluation?: EvaluationAnalysis
+  error?: string
+  timestamp: string
+}
