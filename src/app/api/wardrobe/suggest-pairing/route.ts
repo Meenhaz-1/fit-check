@@ -60,7 +60,7 @@ export async function POST(request: Request) {
     const wardrobeItems = getAllWardrobeItems()
 
     // Step 4: Get pairing suggestions
-    const suggestions = await suggestPairings(itemMetadata, wardrobeItems as Array<Record<string, unknown>>)
+    const suggestions = await suggestPairings(itemMetadata, wardrobeItems as any)
 
     // Step 5: Sort by match score and return
     const sortedSuggestions = suggestions.sort((a, b) => b.matchScore - a.matchScore)

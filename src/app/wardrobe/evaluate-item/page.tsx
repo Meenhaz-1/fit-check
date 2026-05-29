@@ -174,7 +174,7 @@ export default function EvaluateItemPage() {
         {/* Image Preview */}
         <div className="mb-12">
           <div className="rounded-lg border border-divider shadow-sm bg-gray-100 p-4">
-            <img src={imagePreview} alt="Outfit" className="w-full h-auto object-contain" />
+            <img src={imagePreview || ''} alt="Outfit" className="w-full h-auto object-contain" />
           </div>
         </div>
 

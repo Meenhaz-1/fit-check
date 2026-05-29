@@ -77,14 +77,14 @@ export async function POST(request: Request) {
     // Step 4: Save evaluation to database
     const evaluationRecord = {
       id: `eval-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      itemFilename: detectedItems.join(', '),
+      item_filename: detectedItems.join(', '),
       verdict: (evaluation.verdict as 'Buy' | 'Maybe' | 'Do Not Buy') || 'Maybe',
       reasoning: evaluation.verdictReasoning || 'Comprehensive outfit evaluation provided',
-      pairings: [], // Store as empty for Phase 1c; could expand later
+      pairings: undefined, // Store as empty for Phase 1c; could expand later
       created_at: new Date().toISOString(),
     }
 
-    insertEvaluation(evaluationRecord)
+    insertEvaluation(evaluationRecord as any)
     console.log(`[evaluateItem] Saved evaluation: ${evaluationRecord.id}`)
 
     return NextResponse.json(

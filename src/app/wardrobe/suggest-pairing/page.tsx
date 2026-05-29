@@ -204,9 +204,9 @@ export default function SuggestPairingPage() {
                   <div className="flex justify-between items-start mb-3">
                     <div>
                       <p className="text-sm font-semibold text-primary">
-                        {suggestion.item.color && suggestion.item.item_type
-                          ? `${suggestion.item.color} ${suggestion.item.item_type}`
-                          : suggestion.item.item_type || 'Suggested item'}
+                        {suggestion.item.color && (suggestion.item as any).item_type
+                          ? `${suggestion.item.color} ${(suggestion.item as any).item_type}`
+                          : (suggestion.item as any).item_type || 'Suggested item'}
                       </p>
                       {suggestion.item.material && (
                         <p className="text-xs text-text-secondary mt-1">{suggestion.item.material}</p>

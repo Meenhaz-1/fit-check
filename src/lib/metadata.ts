@@ -20,7 +20,8 @@ export async function extractMetadataFromImage(
     }
 
     const itemDescription = 'clothing item in wardrobe'
-    const metadata = await extractMetadata(base64Image, itemDescription, mediaType)
+    const validMediaType = mediaType as 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif'
+    const metadata = await extractMetadata(base64Image, itemDescription, validMediaType)
 
     console.log('Extracted metadata:', metadata)
 
@@ -43,7 +44,7 @@ export async function extractMetadataFromImage(
       console.warn(`Some fields are empty: ${missingFields.join(', ')}`)
     }
 
-    return metadata as ExtractedMetadata
+    return metadata as unknown as ExtractedMetadata
   } catch (error) {
     console.error('Error extracting metadata:', error)
     throw new Error(
