@@ -189,15 +189,20 @@ export default function EvaluateItemPage() {
   const handleButtonMouseUp = () => {
     setButtonPressed(false)
     if (buttonRef.current) {
-      buttonRef.current.classList.remove('animate-button-press', 'animate-accent-ripple')
+      // Remove press animation and set to 90% scale
+      buttonRef.current.classList.remove('animate-button-press')
+      buttonRef.current.style.transform = 'scale(0.90)'
+      // Force reflow to ensure transform state is applied
+      void buttonRef.current.offsetHeight
+      // Trigger release animation from 90% → 105% → 100%
       buttonRef.current.classList.add('animate-button-release')
-      // Keep ripple visible during spring-back
-      buttonRef.current.classList.add('animate-accent-ripple')
+      // Cleanup after animation completes
       setTimeout(() => {
         if (buttonRef.current) {
           buttonRef.current.classList.remove('animate-button-release', 'animate-accent-ripple')
+          buttonRef.current.style.transform = ''
         }
-      }, 400)
+      }, 200)
     }
   }
 
