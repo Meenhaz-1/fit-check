@@ -2,10 +2,10 @@
 
 ## What's New
 
-The evaluate button (`/wardrobe/evaluate-item`) now has three micro-animations:
+The evaluate button (`/wardrobe/evaluate-item`) has three polished micro-animations:
 
-1. **Press** (120ms) — Scale 100% → 97% with sage green ripple flash
-2. **Release** (200ms) — Spring back to 100% with slight overshoot (1.02x)
+1. **Press** (120ms) — Scale 100% → 90% with sage green ripple flash
+2. **Release** (200ms) — Spring back from 90% → 105% → 100% with elastic easing
 3. **Loading** (1.5s loop) — Subtle pulse when "Analysing…"
 
 ## CSS Animations Added
@@ -46,8 +46,6 @@ Plus utility classes: `.animate-button-press`, `.animate-button-release`, `.anim
 Added to component:
 ```typescript
 const buttonRef = useRef<HTMLButtonElement>(null)
-const [buttonPressed, setButtonPressed] = useState(false)
-const [showRipple, setShowRipple] = useState(false)
 
 const handleButtonMouseDown = () => {
   if (buttonRef.current) {
@@ -58,13 +56,19 @@ const handleButtonMouseDown = () => {
 const handleButtonMouseUp = () => {
   if (buttonRef.current) {
     buttonRef.current.classList.remove('animate-button-press')
+    buttonRef.current.style.transform = 'scale(0.90)'
+    // Force reflow to ensure transform is applied before animation starts
+    void buttonRef.current.offsetHeight
     buttonRef.current.classList.add('animate-button-release')
     setTimeout(() => {
-      buttonRef.current?.classList.remove('animate-button-release')
+      buttonRef.current?.classList.remove('animate-button-release', 'animate-accent-ripple')
+      buttonRef.current?.style.transform = ''
     }, 200)
   }
 }
 ```
+
+**Note:** The `offsetHeight` reflow forcing is critical — it ensures the browser applies the 90% scale state before the release animation begins. Without it, the browser can't properly transition from the press animation to the release animation.
 
 Updated button element:
 ```tsx
