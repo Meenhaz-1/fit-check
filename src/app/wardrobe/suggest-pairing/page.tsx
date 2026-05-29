@@ -17,6 +17,7 @@ interface WardrobeItem {
 
 export default function OutfitBuilder() {
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const suggestionsRef = useRef<HTMLDivElement>(null)
   const [activeTab, setActiveTab] = useState<'upload' | 'select'>('upload')
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [wardrobeItems, setWardrobeItems] = useState<WardrobeItem[]>([])
@@ -41,6 +42,19 @@ export default function OutfitBuilder() {
     }
     fetchWardrobeItems()
   }, [])
+
+  // Auto-scroll to suggestions when they're ready
+  useEffect(() => {
+    if (outfitSuggestions.length > 0 && suggestionsRef.current) {
+      // Small delay to ensure DOM has rendered
+      setTimeout(() => {
+        suggestionsRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        })
+      }, 300)
+    }
+  }, [outfitSuggestions])
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -262,13 +276,16 @@ export default function OutfitBuilder() {
               )}
 
               {loading && (
-                <div className="text-center py-8">
-                  <p className="label-caps text-outline animate-pulse">Generating outfits...</p>
+                <div className="mb-8 pb-8 border-b border-outline-variant">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-sage rounded-full animate-loading-pulse"></div>
+                    <p className="label-caps text-on-surface-variant animate-loading-pulse">Generating outfit suggestions…</p>
+                  </div>
                 </div>
               )}
 
               {outfitSuggestions.length > 0 && (
-                <div className="space-y-6">
+                <div ref={suggestionsRef} className="space-y-6">
                   <div>
                     <h2 className="font-serif text-xl font-normal text-on-surface mb-2">
                       Suggested Outfits
@@ -368,13 +385,16 @@ export default function OutfitBuilder() {
                   )}
 
                   {loading && (
-                    <div className="text-center py-8">
-                      <p className="label-caps text-outline animate-pulse">Generating outfits...</p>
+                    <div className="mb-8 pb-8 border-b border-outline-variant">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 bg-sage rounded-full animate-loading-pulse"></div>
+                        <p className="label-caps text-on-surface-variant animate-loading-pulse">Generating outfit suggestions…</p>
+                      </div>
                     </div>
                   )}
 
                   {outfitSuggestions.length > 0 && (
-                    <div className="space-y-6">
+                    <div ref={suggestionsRef} className="space-y-6">
                       <div>
                         <h2 className="font-serif text-xl font-normal text-on-surface mb-2">
                           Suggested Outfits
