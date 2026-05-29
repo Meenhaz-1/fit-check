@@ -143,14 +143,14 @@ a {
 /* Button press micro-animation */
 @keyframes buttonPress {
   0% { transform: scale(1); }
-  50% { transform: scale(0.98); }
-  100% { transform: scale(0.97); }
+  50% { transform: scale(0.93); }
+  100% { transform: scale(0.90); }
 }
 
 /* Button release (spring back) */
 @keyframes buttonRelease {
-  0% { transform: scale(0.97); }
-  70% { transform: scale(1.02); }
+  0% { transform: scale(0.90); }
+  70% { transform: scale(1.05); }
   100% { transform: scale(1); }
 }
 
@@ -196,7 +196,7 @@ a {
 }
 
 .animate-accent-ripple {
-  animation: accentRipple 400ms ease-out forwards;
+  animation: accentRipple 600ms ease-out forwards;
 }
 
 .animate-loading-pulse {

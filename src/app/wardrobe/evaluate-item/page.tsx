@@ -181,6 +181,7 @@ export default function EvaluateItemPage() {
     setButtonPressed(true)
     setShowRipple(true)
     if (buttonRef.current) {
+      buttonRef.current.classList.remove('animate-button-release')
       buttonRef.current.classList.add('animate-button-press', 'animate-accent-ripple')
     }
   }
@@ -188,13 +189,15 @@ export default function EvaluateItemPage() {
   const handleButtonMouseUp = () => {
     setButtonPressed(false)
     if (buttonRef.current) {
-      buttonRef.current.classList.remove('animate-button-press')
+      buttonRef.current.classList.remove('animate-button-press', 'animate-accent-ripple')
       buttonRef.current.classList.add('animate-button-release')
+      // Keep ripple visible during spring-back
+      buttonRef.current.classList.add('animate-accent-ripple')
       setTimeout(() => {
         if (buttonRef.current) {
-          buttonRef.current.classList.remove('animate-button-release')
+          buttonRef.current.classList.remove('animate-button-release', 'animate-accent-ripple')
         }
-      }, 200)
+      }, 400)
     }
   }
 
