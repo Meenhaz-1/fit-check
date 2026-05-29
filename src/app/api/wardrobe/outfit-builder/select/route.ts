@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { generateOutfitSuggestions } from '@/lib/openai'
 import { getAllWardrobeItems, getWardrobeItem } from '@/lib/db'
 import { hydrateOutfits } from '@/lib/outfit-utils'
+import { outfitCache } from '@/lib/cache'
 
 interface SelectRequest {
   itemId: string
@@ -72,6 +73,46 @@ export async function POST(request: Request) {
 
     console.log(`[outfit-builder/select] Filtered from ${allWardrobeItems.length} to ${wardrobeItems.length} complementary items`)
 
+    // Check cache first
+    const cacheKey = `${body.itemId}:${body.itemType}`
+    const cachedSuggestions = outfitCache.get(cacheKey)
+    if (cachedSuggestions) {
+      console.log(`[outfit-builder/select] Cache HIT for ${cacheKey}`)
+      const baseHydratedOutfits = hydrateOutfits(cachedSuggestions)
+      const hydratedOutfits = baseHydratedOutfits.map((outfit, idx) => ({
+        ...outfit,
+        matchScore: cachedSuggestions[idx].matchScore,
+        whyItWorks: cachedSuggestions[idx].whyItWorks,
+        occasions: cachedSuggestions[idx].occasions,
+        missingItems: cachedSuggestions[idx].missingItems || [],
+      }))
+
+      const totalTime = performance.now() - startTime
+      console.log(`[outfit-builder/select] Cache lookup time: ${totalTime.toFixed(2)}ms`)
+
+      return NextResponse.json(
+        {
+          success: true,
+          detectedPiece: {
+            type: selectedItem.item_type,
+            metadata: {
+              item_type: selectedItem.item_type,
+              color: selectedItem.color,
+              material: selectedItem.material,
+              formality: selectedItem.formality,
+              fit: selectedItem.fit,
+              silhouette: selectedItem.silhouette,
+              visual_weight: selectedItem.visual_weight,
+            },
+          },
+          outfitSuggestions: hydratedOutfits,
+          timestamp: new Date().toISOString(),
+          cached: true,
+        },
+        { status: 200 }
+      )
+    }
+
     if (!wardrobeItems || wardrobeItems.length === 0) {
       return NextResponse.json(
         {
@@ -111,6 +152,10 @@ export async function POST(request: Request) {
     const outfitSuggestions = await generateOutfitSuggestions(metadata, wardrobeItems, body.itemType, body.itemId)
     console.timeEnd('Generate outfit suggestions (OpenAI API call)')
 
+    // Cache the results
+    console.log(`[outfit-builder/select] Caching results for ${cacheKey}`)
+    outfitCache.set(cacheKey, outfitSuggestions)
+
     // Hydrate outfit suggestions with full item data from database
     console.time('Hydrate outfits')
     const baseHydratedOutfits = hydrateOutfits(outfitSuggestions)
@@ -135,6 +180,7 @@ export async function POST(request: Request) {
         },
         outfitSuggestions: hydratedOutfits,
         timestamp: new Date().toISOString(),
+        cached: false,
       },
       { status: 200 }
     )
