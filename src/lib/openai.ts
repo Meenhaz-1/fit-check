@@ -995,7 +995,7 @@ This item MUST be included in every outfit (as ${pieceType}Id in all 3 combinati
       messages: [
         {
           role: 'user',
-          content: `You are a professional stylist generating complete outfit combinations.
+          content: `You are a SENIOR STYLIST with 15+ years of experience creating cohesive, confidence-building outfits. You understand that great styling is about narrative, proportion, personal expression, and making the wearer feel like the best version of themselves.
 
 ${selectedItemConstraint}
 
@@ -1013,12 +1013,23 @@ ${shoesList || 'None available'}
 ACCESSORIES (jackets, hats, sunglasses, etc.):
 ${accessoriesList || 'None available'}
 
+SENIOR STYLIST THINKING:
+As an expert, you know that:
+1. NARRATIVE COHERENCE: Each outfit tells a story. Pieces must feel intentional together, not random
+2. PROPORTION & CONFIDENCE: Consider how silhouettes work together to create flattering, confident proportions
+3. OCCASION VERSATILITY: Think beyond "casual" or "business" - these are for specific lifestyle moments (creative meeting, dinner with friends, weekend brunch, gallery opening)
+4. SUBTLE SOPHISTICATION: Great styling is about understated details - color undertones, unexpected material pairings, intentional contrast
+5. PERSONALITY EXPRESSION: Each outfit should reflect personal style while maintaining professional polish
+6. STYLING STRATEGY: The 3 outfits should show versatility with the anchor piece - different moods while keeping the same star item
+
 TASK:
 Generate 3 complete outfit combinations. Each outfit MUST have:
 1. ONE item from TOPS (topId)
 2. ONE item from BOTTOMS (bottomId)
 3. ONE item from SHOES (shoesId)
 4. OPTIONALLY: ONE item from ACCESSORIES (accessoryId)
+
+Each outfit should feel like you're advising a client: "This works because..." not "This is technically correct because..."
 
 CRITICAL RULES:
 ${selectedItemId ? `- ${pieceType === 'top' ? 'topId MUST always be ' + selectedItemId : pieceType === 'bottom' ? 'bottomId MUST always be ' + selectedItemId : 'shoesId MUST always be ' + selectedItemId} (the selected piece featured in all 3 outfits)
@@ -1028,51 +1039,67 @@ ${selectedItemId ? `- ${pieceType === 'top' ? 'topId MUST always be ' + selected
 - shoesId MUST be an ID from the SHOES section ONLY
 - DO NOT use the same item ID in multiple outfits`}
 - accessoryId MUST be an ID from ACCESSORIES (or null)
-- Each outfit must score between 75-95 (vary the scores)
+- Each outfit must score between 75-95 (vary the scores - show that each combination has different strengths)
 - "whyItWorks" must ONLY mention items you actually selected
-- When writing "whyItWorks", reference specific STYLE GUIDE principles:
-  * Color relationships (e.g., "complementary sage and rust", "analogous blues", "monochromatic grays")
-  * Texture pairing (e.g., "smooth cotton with textured wool", "matte + shiny contrast")
-  * Visual weight distribution (e.g., "dark heavy jeans balanced by light airy blouse")
-  * Silhouette harmony (e.g., "fitted top with loose trousers creates balanced proportion")
-  * Formality consistency (e.g., "business casual across all pieces")
-  * Pattern scale (if applicable, e.g., "small-scale stripe with large-scale print")
+- When writing "whyItWorks", think like a senior stylist explaining to a client - include:
+  * NARRATIVE: What's the story/occasion/mood? Why does this combination feel intentional?
+  * PROPORTIONS: How do the silhouettes work together? Does it flatter? Is it balanced?
+  * CONFIDENCE: Will the wearer feel great in this? Does it express their personality?
+  * COLOR STRATEGY: Reference specific color relationships from style guide (complementary, analogous, monochromatic, undertone harmony)
+  * TEXTURE & MATERIAL: Explain material pairings and how textures interact (smooth/rough, matte/shiny)
+  * VISUAL WEIGHT: Explain how dark/light colors and fabric weights create balance
+  * SUBTLE DETAILS: Mention how small choices (color undertones, shoe choice, accessory) elevate the look
+  * LIFESTYLE FIT: When/where would someone confidently wear this?
 
-Scoring guide (Reference STYLE_GUIDE.md principles):
+  Example (Senior Stylist): "The muted sage brings out warm undertones, while navy grounds the look with timeless sophistication. The fitted silhouette on top with straight-leg bottoms creates balance without feeling stiff. Leather loafers add subtle texture that bridges the matte fabrics. Perfect for meetings where you want to appear thoughtful and confident, but still approachable."
 
-COLOR HARMONY (30 points):
-- Complementary colors (high contrast, vibrant) = 28-30 pts
-- Analogous colors (harmonious, 30-60° on color wheel) = 26-28 pts
-- Monochromatic (one color, varying shades/tones) = 25-27 pts
-- Triadic (three equally spaced colors, balanced) = 24-26 pts
-- Achromatic (black, white, gray neutrals) = 22-25 pts
+OCCASIONS (Examples - be specific to LIFESTYLE moments, not generic):
+- "creative meeting", "client presentation", "casual Friday"
+- "dinner with friends", "weekend brunch", "gallery opening"
+- "coffee with mentor", "first date", "working from home"
+- "networking event", "casual dinner", "weekend errands"
+Think: What real-life moment would the wearer feel confident and authentic in this outfit?
+
+Scoring guide (SENIOR STYLIST EXPERTISE - Reference STYLE_GUIDE.md principles):
+
+COLOR HARMONY (30 points): Does the palette feel intentional and sophisticated?
+- Complementary colors (high contrast, vibrant, confident) = 28-30 pts
+- Analogous colors (harmonious, 30-60° on color wheel, effortless) = 26-28 pts
+- Monochromatic (one color, varying shades/tones, timeless) = 25-27 pts
+- Triadic (three equally spaced colors, balanced, playful) = 24-26 pts
+- Achromatic (black, white, gray neutrals, sophisticated) = 22-25 pts
 - Color value contrast (light vs dark for silhouette definition) = +2-3 pts bonus
-- Undertone matching (warm with warm, cool with cool) = +1-2 pts bonus
+- Undertone harmony (warm with warm, cool with cool, polish) = +2-3 pts bonus
+- EXPERTISE: Does it feel chosen, not accidental? +2 pts
 
-VISUAL WEIGHT BALANCE (25 points):
-- Balanced distribution (heavy + light across pieces) = 23-25 pts
-- Color weight (dark colors = heavier; light = lighter) = part of balance
-- Texture weight (rough/thick = heavy; smooth/thin = light) = part of balance
-- Pattern complexity (busy = heavier than solid) = part of balance
-- Unbalanced weight (all heavy bottom or all light top) = 10-18 pts penalty
+VISUAL WEIGHT BALANCE (25 points): Does the proportional distribution create flattery and confidence?
+- Balanced distribution (heavy + light across pieces, harmonious) = 23-25 pts
+- Color weight (dark = grounding; light = open; intentional placement) = part of balance
+- Texture weight (rough/thick = grounding; smooth/thin = elegant) = part of balance
+- Pattern complexity (busy = focus point; solid = breathing room) = part of balance
+- Unbalanced weight (all heavy bottom or all light top, unflattering) = 10-18 pts penalty
+- EXPERTISE: Does this balance flatter the wearer's proportions? +1-2 pts
 
-TEXTURE & PATTERN MATCHING (20 points):
-- Intentional texture mixing (smooth + rough, matte + shiny) = 18-20 pts
+TEXTURE & PATTERN MATCHING (20 points): Is there tactile sophistication and material harmony?
+- Intentional texture mixing (smooth + rough contrast, refined) = 18-20 pts
+- Material coherence (fabrics feel like they belong together) = +1 pt
 - Pattern scale compatibility (small + large, NOT medium + medium) = 16-18 pts
-- Pattern bridge (shared color between patterns) = +2 pts bonus
-- Monochromatic textures (texture-only interest, no pattern clash) = 15-17 pts
-- Formality alignment (casual patterns with casual, business with business) = +1-2 pts bonus
+- Pattern bridge (shared color between patterns, professional) = +2 pts bonus
+- Monochromatic textures (texture-only interest, subtle elegance) = 15-17 pts
+- EXPERTISE: Does the material story feel curated and expensive? +1-2 pts
 
-SILHOUETTE HARMONY (15 points):
-- Fitted + loose balance (not all fitted, not all loose) = 13-15 pts
-- Proportion break intentionality (cropped with high-waist, oversized with belt) = +1-2 pts bonus
-- No competing silhouettes (clear line flow, not chaotic) = part of score
-- Length balance (shirt/pants hemlines create proportion) = +1 pt bonus
+SILHOUETTE HARMONY (15 points): Do the shapes work together to create confident proportions?
+- Fitted + loose balance (not all fitted, not all loose, flattering) = 13-15 pts
+- Proportion break intentionality (cropped with high-waist, oversized with belt, strategic) = +1-2 pts bonus
+- No competing silhouettes (clear line flow, sophisticated) = part of score
+- Length balance (shirt/pants hemlines create intentional proportion) = +1 pt bonus
+- EXPERTISE: Does this balance make the wearer feel their best? +1 pt
 
-FORMALITY CONSISTENCY (10 points):
-- All pieces same formality level (casual-casual, business-business) = 10 pts
-- Adjacent levels acceptable (business casual + casual = +1 level ok) = 8-9 pts
-- Clashing formality (formal + casual) = 0-3 pts penalty
+FORMALITY CONSISTENCY (10 points): Does the formality level feel authentic and appropriate?
+- All pieces same formality level (casual-casual, business-business, cohesive) = 10 pts
+- Adjacent levels acceptable (business casual + casual = +1 level ok, intentional) = 8-9 pts
+- Clashing formality (formal + casual, confusing) = 0-3 pts penalty
+- EXPERTISE: Does this feel like a real person getting ready, not a styling mistake? +1 pt
 
 Return ONLY valid JSON (no markdown, no backticks):
 {
