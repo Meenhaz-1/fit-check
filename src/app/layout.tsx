@@ -1,22 +1,24 @@
 import type { Metadata } from 'next'
-import { Fredoka, Poppins } from 'next/font/google'
+import { Inter, Playfair_Display } from 'next/font/google'
 import { Navigation } from '@/components/Navigation'
 import './globals.css'
 
-const fredoka = Fredoka({
-  variable: '--font-fredoka',
+const inter = Inter({
+  variable: '--font-inter',
   subsets: ['latin'],
+  display: 'swap',
 })
 
-const poppins = Poppins({
-  variable: '--font-poppins',
+const playfair = Playfair_Display({
+  variable: '--font-playfair',
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
+  display: 'swap',
 })
 
 export const metadata: Metadata = {
-  title: 'AI Wardrobe Assistant',
-  description: 'Organize your wardrobe with AI-powered metadata extraction',
+  title: 'Atelier Digital',
+  description: 'A sophisticated synthesis of high fashion and machine intelligence.',
 }
 
 export default function RootLayout({
@@ -25,8 +27,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${fredoka.variable} ${poppins.variable}`}>
-      <body className="bg-bg-primary">
+    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+      <body>
         <Navigation />
         <main>
           {children}

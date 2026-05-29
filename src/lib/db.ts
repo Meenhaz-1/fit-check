@@ -5,6 +5,7 @@ import Papa from 'papaparse'
 interface WardrobeItem {
   id: string
   filename: string
+  description?: string
   item_type: string
   color: string
   material: string
@@ -126,6 +127,16 @@ export function getWardrobeItem(id: string): WardrobeItem | undefined {
   return store.wardrobe_items.find((item) => item.id === id)
 }
 
+export function deleteWardrobeItem(id: string): boolean {
+  const initialLength = store.wardrobe_items.length
+  store.wardrobe_items = store.wardrobe_items.filter((item) => item.id !== id)
+  const deleted = store.wardrobe_items.length < initialLength
+  if (deleted) {
+    saveWardrobeItems()
+  }
+  return deleted
+}
+
 export function insertEvaluation(evaluation: Evaluation) {
   store.evaluations.push(evaluation)
   saveEvaluations()
@@ -140,9 +151,15 @@ export function getEvaluation(id: string): Evaluation | undefined {
   return store.evaluations.find((evaluation) => evaluation.id === id)
 }
 
+export function clearWardrobeItems() {
+  store.wardrobe_items = []
+  saveWardrobeItems()
+}
+
 export function clearDatabase() {
   store.wardrobe_items = []
   store.evaluations = []
+  saveWardrobeItems()
   saveEvaluations()
 }
 

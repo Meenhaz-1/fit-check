@@ -10,79 +10,101 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Poppins', ...defaultTheme.fontFamily.sans],
-        display: ['Fredoka', ...defaultTheme.fontFamily.sans],
+        sans: ['var(--font-inter)', 'Inter', ...defaultTheme.fontFamily.sans],
+        serif: ['var(--font-playfair)', 'Playfair Display', ...defaultTheme.fontFamily.serif],
       },
       colors: {
-        // Premium charcoal + teal (magazine aesthetic)
-        'primary': '#1F2937',
-        'primary-dark': '#111827',
-        'accent': '#0D9488',
-        'accent-dark': '#0F766E',
-        'accent-light': '#CCFBF1',
+        // Atelier Digital — surface stack
+        'surface': '#fdf8f8',
+        'surface-dim': '#ddd9d8',
+        'surface-low': '#f7f3f2',
+        'surface-container': '#f1edec',
+        'surface-high': '#ebe7e6',
+        'surface-highest': '#e5e2e1',
 
-        // Text colors
-        'text-primary': '#1F2937',
-        'text-secondary': '#6B7280',
-        'text-tertiary': '#9CA3AF',
+        // Text
+        'on-surface': '#1c1b1b',
+        'on-surface-variant': '#444748',
 
-        // Surface colors
-        'surface-base': '#FFFFFF',
-        'surface-elevated': '#FAFBFC',
-        'surface-hover': '#F3F4F6',
+        // Primary (deep charcoal / black)
+        'atelier-primary': '#000000',
+        'atelier-on-primary': '#ffffff',
+
+        // Champagne Gold (reserved for premium highlights)
+        'atelier-gold': '#D4AF37',
+        'atelier-gold-dim': '#cca730',
+
+        // Muted Sage (match scores, compatibility indicators)
+        'atelier-sage': '#8A9A8E',
+
+        // Borders
+        'outline': '#747878',
+        'outline-variant': '#c4c7c7',
 
         // Semantic
-        'success': '#059669',
-        'error': '#DC2626',
-        'warning': '#B45309',
-        'error-bg': '#FEE2E2',
+        'error': '#ba1a1a',
+        'error-container': '#ffdad6',
+        'success': '#4a7c59',
 
-        // Borders & dividers
-        'divider': '#E5E7EB',
-        'border': '#D1D5DB',
-
-        // Legacy (kept for backwards compatibility, will deprecate)
-        'primary-hot': '#0D9488',
-        'primary-warm': '#1F2937',
-        'primary-joy': '#6B7280',
+        // Legacy aliases (used by existing API-connected components)
+        'primary': '#1c1b1b',
+        'primary-dark': '#000000',
+        'accent': '#8A9A8E',
+        'accent-dark': '#6b7a6f',
+        'accent-light': '#e0dfde',
+        'text-primary': '#1c1b1b',
+        'text-secondary': '#444748',
+        'text-tertiary': '#747878',
+        'surface-base': '#fdf8f8',
+        'surface-elevated': '#f7f3f2',
+        'surface-hover': '#f1edec',
+        'error-bg': '#ffdad6',
+        'divider': '#c4c7c7',
+        'border': '#c4c7c7',
       },
-      backgroundImage: {
-        'gradient-primary': 'linear-gradient(135deg, #FF6B9D 0%, #FFB84D 100%)',
-        'gradient-accent': 'linear-gradient(135deg, #6C5CE7 0%, #FF6B9D 100%)',
+      borderRadius: {
+        // Atelier Digital: sharp corners throughout
+        DEFAULT: '0px',
+        none: '0px',
+        sm: '0px',
+        md: '0px',
+        lg: '0px',
+        xl: '0px',
+        '2xl': '0px',
+        '3xl': '0px',
+        full: '9999px', // circular badges only
+      },
+      spacing: {
+        'section': '120px',
+      },
+      fontSize: {
+        'display': ['64px', { lineHeight: '1.1', letterSpacing: '-0.02em' }],
+        'display-mobile': ['40px', { lineHeight: '1.2' }],
+        'headline-lg': ['48px', { lineHeight: '1.15', letterSpacing: '-0.01em' }],
+        'headline-md': ['32px', { lineHeight: '1.3' }],
+        'headline-sm': ['24px', { lineHeight: '1.4' }],
+        'label-caps': ['11px', { lineHeight: '1.0', letterSpacing: '0.12em' }],
+      },
+      letterSpacing: {
+        'caps': '0.1em',
+        'btn': '0.05em',
+      },
+      maxWidth: {
+        'atelier': '1280px',
       },
       animation: {
-        'slide-up': 'slideUp 0.6s ease-out forwards',
-        'pulse-border': 'pulseBorder 3s ease-in-out infinite',
-        'float': 'float 3s ease-in-out infinite',
+        'slide-up': 'slideUp 400ms ease-out forwards',
+        'fade-in': 'fadeIn 500ms ease-out forwards',
       },
       keyframes: {
         slideUp: {
-          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '0%': { opacity: '0', transform: 'translateY(12px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
-        pulseBorder: {
-          '0%, 100%': { borderColor: '#FF6B9D', opacity: '0.5' },
-          '50%': { borderColor: '#FF6B9D', opacity: '1' },
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
         },
-        float: {
-          '0%, 100%': { transform: 'translateY(0px)' },
-          '50%': { transform: 'translateY(-8px)' },
-        },
-      },
-      spacing: {
-        'xs': '8px',
-        'sm': '12px',
-        'md': '16px',
-        'lg': '24px',
-        'xl': '32px',
-        '2xl': '48px',
-      },
-      borderRadius: {
-        'xs': '8px',
-        'sm': '12px',
-        'md': '16px',
-        'lg': '20px',
-        'xl': '24px',
       },
     },
   },

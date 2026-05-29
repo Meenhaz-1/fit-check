@@ -1,93 +1,121 @@
-'use client'
-
 import Link from 'next/link'
 
 export default function Home() {
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-4xl font-bold text-gray-900">
-          AI Wardrobe Assistant
-        </h1>
-        <p className="text-xl text-gray-600 mt-2">
-          Phase 1 MVP - Intelligence Validation
-        </p>
-      </div>
+    <div className="bg-surface min-h-screen">
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            1. Upload Wardrobe
-          </h2>
-          <p className="text-gray-600 mb-4">
-            Add items from your wardrobe. AI will extract metadata (color,
-            material, formality, fit).
+      {/* ── Hero ────────────────────────────────────────────────────────────── */}
+      <section className="max-w-atelier mx-auto px-16 pt-32 pb-section">
+        <div className="max-w-3xl animate-slide-up">
+          <p className="label-caps mb-8">AI Personal Style Assistant</p>
+          <h1 className="font-serif text-display font-normal text-on-surface mb-8">
+            A sophisticated synthesis of high fashion and machine intelligence.
+          </h1>
+          <p className="text-lg text-on-surface-variant leading-relaxed max-w-xl mb-12">
+            Your wardrobe, analyzed. Your style, elevated. Let our AI act as
+            your personal digital couturier — curating, pairing, and perfecting
+            every look.
           </p>
-          <Link href="/wardrobe" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 inline-block">
-            Upload Items
-          </Link>
+          <div className="flex gap-4">
+            <Link
+              href="/wardrobe/gallery"
+              className="px-8 py-4 bg-on-surface text-surface text-sm font-medium tracking-btn uppercase hover:bg-black transition-colors duration-150"
+            >
+              Begin Your Collection
+            </Link>
+            <Link
+              href="/style"
+              className="px-8 py-4 border border-on-surface text-on-surface text-sm font-medium tracking-btn uppercase hover:bg-surface-container transition-colors duration-150"
+            >
+              Define Your Style
+            </Link>
+          </div>
         </div>
+      </section>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            2. Suggest Pairing
-          </h2>
-          <p className="text-gray-600 mb-4">
-            Upload a clothing item and get AI-powered suggestions for what pairs well with it.
-          </p>
-          <Link href="/wardrobe/suggest-pairing" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 inline-block">
-            Find Pairings
-          </Link>
+      <div className="border-t border-outline-variant" />
+
+      {/* ── Process ─────────────────────────────────────────────────────────── */}
+      <section className="max-w-atelier mx-auto px-16 py-section">
+        <p className="label-caps mb-16">The Process</p>
+        <div className="grid grid-cols-3 gap-16">
+          {[
+            {
+              num: '01',
+              title: 'Digital Scan',
+              description:
+                'Upload your garments. Our AI performs a detailed analysis of colour, material, silhouette, fit, and visual weight — building the foundation of your digital wardrobe.',
+              href: '/wardrobe',
+              cta: 'Upload Items',
+            },
+            {
+              num: '02',
+              title: 'Outfit Builder',
+              description:
+                'Submit any piece from your collection. Receive curated pairing suggestions with compatibility scores, styling rationale, and occasion guidance.',
+              href: '/wardrobe/suggest-pairing',
+              cta: 'Build an Outfit',
+            },
+            {
+              num: '03',
+              title: 'Purchase Consultant',
+              description:
+                'Upload a potential purchase. Receive an honest verdict on whether the piece earns a place in your collection, with professional styling critique.',
+              href: '/wardrobe/evaluate-item',
+              cta: 'Evaluate a Look',
+            },
+          ].map(({ num, title, description, href, cta }) => (
+            <div key={num} className="border-t border-on-surface pt-8">
+              <p className="label-caps text-outline mb-6">{num}</p>
+              <h2 className="font-serif text-headline-sm font-normal text-on-surface mb-4">
+                {title}
+              </h2>
+              <p className="text-sm text-on-surface-variant leading-relaxed mb-8">
+                {description}
+              </p>
+              <Link
+                href={href}
+                className="text-sm font-medium text-on-surface tracking-btn uppercase border-b border-on-surface pb-px hover:text-on-surface-variant hover:border-on-surface-variant transition-colors duration-150"
+              >
+                {cta} →
+              </Link>
+            </div>
+          ))}
         </div>
+      </section>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            3. Evaluate Item
-          </h2>
-          <p className="text-gray-600 mb-4">
-            Upload a photo of your styled outfit. AI will analyze the complete look and give professional styling feedback with a verdict.
-          </p>
-          <Link href="/wardrobe/evaluate-item" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 inline-block">
-            Evaluate Outfit
-          </Link>
+      <div className="border-t border-outline-variant" />
+
+      {/* ── Quote ───────────────────────────────────────────────────────────── */}
+      <section className="max-w-atelier mx-auto px-16 py-24 text-center">
+        <blockquote className="font-serif text-headline-sm font-normal text-on-surface-variant max-w-2xl mx-auto leading-relaxed italic">
+          &ldquo;Fashion is the armour to survive the reality of everyday life.
+          Our AI makes that armour perfect.&rdquo;
+        </blockquote>
+      </section>
+
+      <div className="border-t border-outline-variant" />
+
+      {/* ── Footer ──────────────────────────────────────────────────────────── */}
+      <footer className="max-w-atelier mx-auto px-16 py-8 flex justify-between items-center">
+        <p className="label-caps text-outline">© 2026 Atelier Digital</p>
+        <div className="flex gap-8">
+          {[
+            { href: '/style', label: 'Style ID' },
+            { href: '/wardrobe/gallery', label: 'My Wardrobe' },
+            { href: '/wardrobe/suggest-pairing', label: 'Outfit Builder' },
+            { href: '/wardrobe/evaluate-item', label: 'Purchase Consultant' },
+          ].map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
+              className="label-caps hover:text-on-surface transition-colors duration-150"
+            >
+              {label}
+            </Link>
+          ))}
         </div>
-      </div>
-
-      <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-        <h3 className="text-lg font-bold text-green-900 mb-2">
-          Phase 1: MVP Progress
-        </h3>
-        <p className="text-green-800">
-          AI-powered wardrobe management with professional styling feedback.
-        </p>
-        <ul className="list-disc list-inside text-green-800 mt-2 space-y-1">
-          <li>✅ Phase 1a: Setup & Infrastructure complete</li>
-          <li>✅ Phase 1b: Wardrobe Upload & Metadata Extraction</li>
-          <li>✅ Phase 1d: Suggest Pairing with detailed feedback</li>
-          <li>✅ Phase 1c: Evaluate Item (complete outfit analysis)</li>
-          <li>⏳ Phase 1d Enhancement: Structured suggestion feedback (Next)</li>
-        </ul>
-      </div>
-
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <h3 className="text-lg font-bold text-blue-900 mb-2">
-          Development Notes
-        </h3>
-        <ul className="space-y-2 text-blue-800">
-          <li>
-            • Check `PHASE_1A_README.md` for setup instructions and troubleshooting
-          </li>
-          <li>
-            • Reference `PHASE_1_BUILD_PLAN.md` for the overall roadmap
-          </li>
-          <li>
-            • Environment variables in `.env.local` (create from `.env.local.example`)
-          </li>
-          <li>
-            • Tests run with: `npm run test`
-          </li>
-        </ul>
-      </div>
+      </footer>
     </div>
   )
 }

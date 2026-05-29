@@ -8,6 +8,7 @@ const MAX_FIELD_LENGTH = 200
 
 interface SaveRequest {
   filename: string
+  description?: string
   image?: string
   mediaType?: string
   item_type: string
@@ -68,6 +69,7 @@ export async function POST(request: Request) {
     const item = insertWardrobeItem({
       id,
       filename: safeFilename,
+      description: body.description?.trim(),
       item_type: body.item_type.trim(),
       color: body.color.trim(),
       material: body.material.trim(),

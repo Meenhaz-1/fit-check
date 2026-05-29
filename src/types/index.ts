@@ -97,3 +97,43 @@ export interface EvaluateItemResponse {
   error?: string
   timestamp: string
 }
+
+export interface OutfitItem {
+  id: string
+  item_type: string
+  color: string
+  material: string
+  visual_weight: string
+  imageUrl?: string
+}
+
+export interface OutfitSuggestion {
+  id: number
+  top: OutfitItem
+  bottom: OutfitItem
+  shoes: OutfitItem
+  outerwear?: OutfitItem | null
+  accessory?: OutfitItem | null
+  matchScore: number  // 0-100
+  whyItWorks: string
+  occasions: string[]
+  missingItems: string[]
+}
+
+export interface OutfitBuilderRequest {
+  image?: string
+  itemId?: string
+  itemType?: 'top' | 'bottom' | 'shoes'
+  mediaType?: string
+}
+
+export interface OutfitBuilderResponse {
+  success: boolean
+  detectedPiece?: {
+    type: string
+    metadata: Record<string, string>
+  }
+  outfitSuggestions?: OutfitSuggestion[]
+  error?: string
+  timestamp: string
+}
