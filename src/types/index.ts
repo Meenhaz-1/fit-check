@@ -32,6 +32,12 @@ export interface Suggestion {
   matchScore: number
 }
 
+export interface DetailedSuggestion extends Suggestion {
+  whatWorksWell?: string[]
+  whatCouldImprove?: string[]
+  stylingTips?: string[]
+}
+
 export interface SuggestPairingRequest {
   image: string
   mediaType?: string

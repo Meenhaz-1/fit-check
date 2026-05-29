@@ -199,9 +199,9 @@ export default function SuggestPairingPage() {
               {suggestions.map((suggestion, index) => (
                 <div
                   key={index}
-                  className="p-4 bg-surface-elevated border border-divider rounded-lg hover:shadow-md transition-shadow"
+                  className="p-6 bg-surface-elevated border border-divider rounded-lg hover:shadow-md transition-shadow"
                 >
-                  <div className="flex justify-between items-start mb-3">
+                  <div className="flex justify-between items-start mb-4">
                     <div>
                       <p className="text-sm font-semibold text-primary">
                         {suggestion.item.color && (suggestion.item as any).item_type
@@ -217,7 +217,47 @@ export default function SuggestPairingPage() {
                       <div className="text-xs text-text-secondary">Match</div>
                     </div>
                   </div>
-                  <p className="text-sm text-text-primary">{suggestion.reason}</p>
+
+                  {/* What Works Well */}
+                  {(suggestion as any).whatWorksWell && (suggestion as any).whatWorksWell.length > 0 && (
+                    <div className="mb-4">
+                      <h4 className="text-xs font-semibold text-green-700 mb-2">✓ What works well:</h4>
+                      <ul className="space-y-1">
+                        {(suggestion as any).whatWorksWell.map((point: string, i: number) => (
+                          <li key={i} className="text-xs text-text-primary">• {point}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* What Could Improve */}
+                  {(suggestion as any).whatCouldImprove && (suggestion as any).whatCouldImprove.length > 0 && (
+                    <div className="mb-4">
+                      <h4 className="text-xs font-semibold text-orange-700 mb-2">⚠ What could improve:</h4>
+                      <ul className="space-y-1">
+                        {(suggestion as any).whatCouldImprove.map((point: string, i: number) => (
+                          <li key={i} className="text-xs text-text-primary">• {point}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Styling Tips */}
+                  {(suggestion as any).stylingTips && (suggestion as any).stylingTips.length > 0 && (
+                    <div>
+                      <h4 className="text-xs font-semibold text-accent mb-2">→ Styling tips:</h4>
+                      <ul className="space-y-1">
+                        {(suggestion as any).stylingTips.map((tip: string, i: number) => (
+                          <li key={i} className="text-xs text-text-primary">• {tip}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Fallback to reason if no detailed analysis */}
+                  {(!((suggestion as any).whatWorksWell && (suggestion as any).whatWorksWell.length > 0)) && (
+                    <p className="text-sm text-text-primary">{suggestion.reason}</p>
+                  )}
                 </div>
               ))}
             </div>

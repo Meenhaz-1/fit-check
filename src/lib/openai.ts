@@ -564,4 +564,107 @@ function getEvaluationFallback() {
   }
 }
 
+export async function analyzePairingDetailed(
+  uploadedItem: Record<string, string>,
+  suggestedItem: Record<string, unknown>
+): Promise<{
+  whatWorksWell: string[]
+  whatCouldImprove: string[]
+  stylingTips: string[]
+  matchScore: number
+}> {
+  try {
+    const uploadedItemStr = `${uploadedItem.color || 'unknown'} ${uploadedItem.type || 'item'} (${uploadedItem.material || 'unknown'} material, ${uploadedItem.fit || 'regular'} fit, ${uploadedItem.formality || 'casual'} formality)`
+    const suggestedItemStr = `${(suggestedItem as any).color || 'unknown'} ${(suggestedItem as any).filename || (suggestedItem as any).item_type || 'item'} (${(suggestedItem as any).material || 'unknown'} material, ${(suggestedItem as any).fit || 'regular'} fit)`
+
+    const response = await client.chat.completions.create({
+      model: 'gpt-4o',
+      max_tokens: 1024,
+      messages: [
+        {
+          role: 'user',
+          content: `You are a professional fashion stylist analyzing how well two clothing items pair together.
+
+UPLOADED ITEM: ${uploadedItemStr}
+SUGGESTED WARDROBE ITEM: ${suggestedItemStr}
+
+ANALYSIS REQUIREMENTS:
+1. Color compatibility - How do the colors work together?
+2. Visual proportions - Do the silhouettes and fits balance each other?
+3. Formality level - Do both items match in formality?
+4. Style cohesion - Do the materials and styles feel intentional together?
+
+RESPONSE REQUIREMENTS:
+- Provide 3-4 specific points for "What works well" that reference the actual item properties
+- Provide 2-3 constructive critiques for "What could improve" with suggested solutions
+- Include 3-4 specific styling tips (e.g., "tuck the shirt", "roll sleeves", "add a belt")
+- Provide a match score (0-100) based on overall compatibility
+
+Return ONLY valid JSON with this exact structure:
+{
+  "whatWorksWell": [
+    "Specific observation 1 referencing the actual items and their properties",
+    "Specific observation 2",
+    "Specific observation 3"
+  ],
+  "whatCouldImprove": [
+    "Specific critique 1 with suggested solution",
+    "Specific critique 2 with suggested solution"
+  ],
+  "stylingTips": [
+    "Actionable tip 1 (e.g., tuck, roll sleeves, add accessory)",
+    "Actionable tip 2",
+    "Actionable tip 3"
+  ],
+  "matchScore": 85
+}
+
+NO markdown, no explanations, ONLY JSON.`,
+        },
+      ],
+    })
+
+    const content = response.choices[0]?.message?.content
+    if (typeof content === 'string') {
+      try {
+        // Strip markdown code blocks if present
+        let jsonContent = content.trim()
+        if (jsonContent.startsWith('```json')) {
+          jsonContent = jsonContent.replace(/^```json\s*/, '').replace(/\s*```$/, '')
+        } else if (jsonContent.startsWith('```')) {
+          jsonContent = jsonContent.replace(/^```\s*/, '').replace(/\s*```$/, '')
+        }
+
+        const analysis = JSON.parse(jsonContent)
+        return analysis
+      } catch (parseError) {
+        console.error('[analyzePairingDetailed] JSON parse error:', parseError)
+        return getPairingFallback()
+      }
+    }
+
+    return getPairingFallback()
+  } catch (error) {
+    console.error('[analyzePairingDetailed] Error:', error)
+    throw error
+  }
+}
+
+function getPairingFallback() {
+  return {
+    whatWorksWell: [
+      'The items share a similar formality level',
+      'Colors are complementary and work together',
+    ],
+    whatCouldImprove: [
+      'Consider testing the fit proportions together',
+    ],
+    stylingTips: [
+      'Pair these items together for a cohesive look',
+      'Ensure the fit proportions balance well',
+    ],
+    matchScore: 75,
+  }
+}
+
 export { client }
