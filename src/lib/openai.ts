@@ -40,7 +40,7 @@ export async function detectClothingItems(
   try {
     const base64Only = getBase64(imageBase64)
     const response = await client.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: 'gpt-4o',
       max_tokens: 256,
       messages: [
         {
@@ -84,7 +84,7 @@ export async function extractMetadata(
       : PROMPTS.extractMetadata(selectedItems[0])
 
     const response = await client.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: 'gpt-4o',
       max_tokens: isMultiple ? 1024 : 256,
       messages: [
         {
@@ -167,7 +167,7 @@ export async function suggestPairings(
       : PROMPTS.suggestPairings(uploadedItemAnalysis, wardrobeItemsList)
 
     const response = await client.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: 'gpt-4o',
       max_tokens: includeDetailedAnalysis ? 2048 : 1024,
       messages: [
         {
@@ -255,7 +255,7 @@ async function getGenericPairingSuggestions(
     const formality = uploadedItemAnalysis.formality || 'casual'
 
     const response = await client.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: 'gpt-4o',
       max_tokens: 512,
       messages: [
         {
@@ -378,7 +378,7 @@ export async function evaluateOutfit(
     const isSingleItem = detectedItems.length === 1
 
     const response = await client.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: 'gpt-4o',
       max_tokens: 3000,
       messages: [
         {
@@ -419,7 +419,7 @@ export async function analyzePairingDetailed(
     const suggestedItemStr = `${(suggestedItem as any).color || 'unknown'} ${(suggestedItem as any).filename || (suggestedItem as any).item_type || 'item'} (${(suggestedItem as any).material || 'unknown'} material, ${(suggestedItem as any).fit || 'regular'} fit)`
 
     const response = await client.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: 'gpt-4o',
       max_tokens: 1024,
       messages: [
         {
@@ -536,7 +536,7 @@ This item MUST be included in every outfit (as ${pieceType}Id in all 3 combinati
 - Formality: ${selectedFormality}`
 
     const response = await client.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: 'gpt-4o',
       max_tokens: 2000,
       messages: [
         {
