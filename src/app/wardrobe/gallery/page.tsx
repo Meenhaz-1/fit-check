@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { apiFetch } from '@/lib/apiFetch'
 import { usePaginatedWardrobe } from '@/hooks/usePaginatedWardrobe'
+import { getThumbnailUrl, generateSrcSet } from '@/lib/image-optimizer'
 
 interface WardrobeItem {
   id: string
@@ -146,11 +147,20 @@ export default function WardrobeGallery() {
                 {/* Image */}
                 <div className="w-full aspect-[3/4] bg-surface-container overflow-hidden mb-5 relative">
                   {item.imageUrl ? (
-                    <img
-                      src={item.imageUrl}
-                      alt={item.item_type}
-                      className="w-full h-full object-contain"
-                    />
+                    <picture>
+                      <source
+                        srcSet={generateSrcSet(item.imageUrl)}
+                        type="image/webp"
+                      />
+                      <img
+                        src={getThumbnailUrl(item.imageUrl)}
+                        srcSet={generateSrcSet(item.imageUrl)}
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        loading="lazy"
+                        alt={item.item_type}
+                        className="w-full h-full object-contain"
+                      />
+                    </picture>
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <span className="label-caps text-outline">{item.item_type.charAt(0)}</span>
