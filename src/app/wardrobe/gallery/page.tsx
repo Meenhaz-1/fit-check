@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { apiFetch } from '@/lib/apiFetch'
+import { usePaginatedWardrobe } from '@/hooks/usePaginatedWardrobe'
 
 interface WardrobeItem {
   id: string
@@ -34,33 +35,9 @@ function itemMatchesFilter(item: WardrobeItem, filter: string) {
 }
 
 export default function WardrobeGallery() {
-  const [items, setItems] = useState<WardrobeItem[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { items, page, setPage, total, hasMore, totalPages, loading, error, refresh } = usePaginatedWardrobe(20)
   const [deleting, setDeleting] = useState<string | null>(null)
   const [activeFilter, setActiveFilter] = useState('All items')
-
-  useEffect(() => {
-    fetchItems()
-  }, [])
-
-  const fetchItems = async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const response = await apiFetch('/api/wardrobe/items', { method: 'GET' })
-      const data = await response.json()
-      if (response.ok && data.items) {
-        setItems(data.items)
-      } else {
-        setError('Failed to load wardrobe')
-      }
-    } catch {
-      setError('Error loading items')
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const handleDelete = async (itemId: string) => {
     if (!confirm('Remove this piece from your wardrobe?')) return
@@ -68,14 +45,12 @@ export default function WardrobeGallery() {
     try {
       const response = await apiFetch(`/api/wardrobe/items?id=${itemId}`, { method: 'DELETE' })
       if (response.ok) {
-        setItems(items.filter((item) => item.id !== itemId))
-        setError(null)
+        refresh()
       } else {
         const data = await response.json()
-        setError(data.error || 'Failed to delete item')
+        console.error('Delete failed:', data.error || 'Failed to delete item')
       }
     } catch (err) {
-      setError('Error deleting item')
       console.error('Delete error:', err)
     } finally {
       setDeleting(null)
@@ -96,7 +71,7 @@ export default function WardrobeGallery() {
               Your Collection
             </h1>
             <p className="text-xs sm:text-sm text-on-surface-variant">
-              {items.length} piece{items.length !== 1 ? 's' : ''} catalogued
+              {total} piece{total !== 1 ? 's' : ''} catalogued
             </p>
           </div>
           <Link
@@ -146,7 +121,7 @@ export default function WardrobeGallery() {
         )}
 
         {/* Empty state */}
-        {!loading && items.length === 0 && !error && (
+        {!loading && total === 0 && !error && (
           <div className="py-32 text-center border border-outline-variant">
             <h2 className="font-serif text-headline-sm font-normal text-on-surface mb-4">
               Your wardrobe is empty
@@ -222,11 +197,34 @@ export default function WardrobeGallery() {
         )}
 
         {/* No results for active filter */}
-        {!loading && items.length > 0 && filtered.length === 0 && (
+        {!loading && total > 0 && filtered.length === 0 && (
           <div className="py-20 text-center">
             <p className="text-sm text-on-surface-variant">
               No items in the &ldquo;{activeFilter}&rdquo; category.
             </p>
+          </div>
+        )}
+
+        {/* Pagination controls */}
+        {!loading && total > 0 && filtered.length > 0 && totalPages > 1 && (
+          <div className="mt-16 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
+            <button
+              onClick={() => setPage(page - 1)}
+              disabled={page === 1}
+              className="px-4 sm:px-6 py-2.5 border border-outline-variant text-on-surface text-sm font-medium hover:bg-surface-container disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-150"
+            >
+              ← Previous
+            </button>
+            <div className="text-sm text-on-surface-variant">
+              Page <span className="font-medium">{page}</span> of <span className="font-medium">{totalPages}</span>
+            </div>
+            <button
+              onClick={() => setPage(page + 1)}
+              disabled={!hasMore}
+              className="px-4 sm:px-6 py-2.5 border border-outline-variant text-on-surface text-sm font-medium hover:bg-surface-container disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-150"
+            >
+              Next →
+            </button>
           </div>
         )}
       </div>
