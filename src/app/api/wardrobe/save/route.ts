@@ -66,7 +66,7 @@ export async function POST(request: Request) {
       }
     }
 
-    const item = insertWardrobeItem({
+    const item = await insertWardrobeItem({
       id,
       filename: safeFilename,
       description: body.description?.trim(),

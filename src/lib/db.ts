@@ -1,4 +1,5 @@
-import { readFileSync, writeFileSync, mkdirSync } from 'fs'
+import { readFileSync, mkdirSync } from 'fs'
+import { writeFile } from 'fs/promises'
 import { join } from 'path'
 import Papa from 'papaparse'
 
@@ -30,13 +31,56 @@ const dataDir = join(process.cwd(), 'data')
 const evaluationsFile = join(dataDir, 'evaluations.json')
 const sampleWardrobeFile = join(dataDir, 'sample-wardrobe.csv')
 
+let wardrobeFlushTimer: NodeJS.Timeout | null = null
+let wardrobeFlushPromise: Promise<void> | null = null
+let evaluationsFlushTimer: NodeJS.Timeout | null = null
+let evaluationsFlushPromise: Promise<void> | null = null
+const FLUSH_DELAY = 100
+
 const store = {
   wardrobe_items: [] as WardrobeItem[],
   evaluations: [] as Evaluation[],
+  // Indexes for O(1) lookups
+  wardrobeById: new Map<string, WardrobeItem>(),
+  wardrobeByType: new Map<string, WardrobeItem[]>(),
+  wardrobeByColor: new Map<string, WardrobeItem[]>(),
+  evaluationsById: new Map<string, Evaluation>(),
 }
 
 function ensureDataDir() {
   mkdirSync(dataDir, { recursive: true })
+}
+
+async function ensureWardrobeFlush(): Promise<void> {
+  if (wardrobeFlushTimer) clearTimeout(wardrobeFlushTimer)
+  if (wardrobeFlushPromise) return wardrobeFlushPromise
+
+  wardrobeFlushPromise = new Promise<void>((resolve) => {
+    wardrobeFlushTimer = setTimeout(async () => {
+      await saveWardrobeItems()
+      wardrobeFlushTimer = null
+      wardrobeFlushPromise = null
+      resolve()
+    }, FLUSH_DELAY)
+  })
+
+  return wardrobeFlushPromise
+}
+
+async function ensureEvaluationsFlush(): Promise<void> {
+  if (evaluationsFlushTimer) clearTimeout(evaluationsFlushTimer)
+  if (evaluationsFlushPromise) return evaluationsFlushPromise
+
+  evaluationsFlushPromise = new Promise<void>((resolve) => {
+    evaluationsFlushTimer = setTimeout(async () => {
+      await saveEvaluations()
+      evaluationsFlushTimer = null
+      evaluationsFlushPromise = null
+      resolve()
+    }, FLUSH_DELAY)
+  })
+
+  return evaluationsFlushPromise
 }
 
 function loadSampleWardrobe() {
@@ -57,6 +101,19 @@ function loadSampleWardrobe() {
         uploaded_at: row.uploaded_at || new Date().toISOString(),
         imageUrl: row.imageUrl,
       }))
+
+      // Build indexes
+      store.wardrobeById.clear()
+      store.wardrobeByType.clear()
+      store.wardrobeByColor.clear()
+      for (const item of store.wardrobe_items) {
+        store.wardrobeById.set(item.id, item)
+        const type = (item.item_type || 'unknown').toLowerCase()
+        store.wardrobeByType.set(type, [...(store.wardrobeByType.get(type) || []), item])
+        const color = (item.color || 'unknown').toLowerCase()
+        store.wardrobeByColor.set(color, [...(store.wardrobeByColor.get(color) || []), item])
+      }
+
       console.log(`Loaded ${store.wardrobe_items.length} wardrobe items from CSV`)
     }
   } catch (error: any) {
@@ -72,6 +129,10 @@ function loadEvaluations() {
     const data = JSON.parse(content)
     if (Array.isArray(data)) {
       store.evaluations = data
+      store.evaluationsById.clear()
+      for (const evaluation of store.evaluations) {
+        store.evaluationsById.set(evaluation.id, evaluation)
+      }
       console.log(`Loaded ${store.evaluations.length} evaluations from JSON`)
     }
   } catch (error: any) {
@@ -81,18 +142,18 @@ function loadEvaluations() {
   }
 }
 
-function saveEvaluations() {
+async function saveEvaluations() {
   try {
-    writeFileSync(evaluationsFile, JSON.stringify(store.evaluations, null, 2), 'utf-8')
+    await writeFile(evaluationsFile, JSON.stringify(store.evaluations, null, 2), 'utf-8')
   } catch (error) {
     console.error('Failed to save evaluations to JSON:', error)
   }
 }
 
-function saveWardrobeItems() {
+async function saveWardrobeItems() {
   try {
     const csv = Papa.unparse(store.wardrobe_items, { header: true })
-    writeFileSync(sampleWardrobeFile, csv, 'utf-8')
+    await writeFile(sampleWardrobeFile, csv, 'utf-8')
     console.log(`Saved ${store.wardrobe_items.length} wardrobe items to CSV`)
   } catch (error) {
     console.error('Failed to save wardrobe items to CSV:', error)
@@ -110,12 +171,17 @@ export function getDb() {
   return store
 }
 
-export function insertWardrobeItem(item: WardrobeItem) {
+export async function insertWardrobeItem(item: WardrobeItem) {
   if (store.wardrobe_items.length >= 10_000) {
     throw new Error('Wardrobe item limit reached')
   }
   store.wardrobe_items.push(item)
-  saveWardrobeItems()
+  store.wardrobeById.set(item.id, item)
+  const type = (item.item_type || 'unknown').toLowerCase()
+  store.wardrobeByType.set(type, [...(store.wardrobeByType.get(type) || []), item])
+  const color = (item.color || 'unknown').toLowerCase()
+  store.wardrobeByColor.set(color, [...(store.wardrobeByColor.get(color) || []), item])
+  await ensureWardrobeFlush()
   return item
 }
 
@@ -124,22 +190,30 @@ export function getAllWardrobeItems(): WardrobeItem[] {
 }
 
 export function getWardrobeItem(id: string): WardrobeItem | undefined {
-  return store.wardrobe_items.find((item) => item.id === id)
+  return store.wardrobeById.get(id)
 }
 
-export function deleteWardrobeItem(id: string): boolean {
-  const initialLength = store.wardrobe_items.length
-  store.wardrobe_items = store.wardrobe_items.filter((item) => item.id !== id)
-  const deleted = store.wardrobe_items.length < initialLength
-  if (deleted) {
-    saveWardrobeItems()
+export async function deleteWardrobeItem(id: string): Promise<boolean> {
+  const item = store.wardrobeById.get(id)
+  if (!item) {
+    return false
   }
-  return deleted
+  store.wardrobe_items = store.wardrobe_items.filter((i) => i.id !== id)
+  store.wardrobeById.delete(id)
+  const type = (item.item_type || 'unknown').toLowerCase()
+  const typeItems = store.wardrobeByType.get(type) || []
+  store.wardrobeByType.set(type, typeItems.filter((i) => i.id !== id))
+  const color = (item.color || 'unknown').toLowerCase()
+  const colorItems = store.wardrobeByColor.get(color) || []
+  store.wardrobeByColor.set(color, colorItems.filter((i) => i.id !== id))
+  await ensureWardrobeFlush()
+  return true
 }
 
-export function insertEvaluation(evaluation: Evaluation) {
+export async function insertEvaluation(evaluation: Evaluation) {
   store.evaluations.push(evaluation)
-  saveEvaluations()
+  store.evaluationsById.set(evaluation.id, evaluation)
+  await ensureEvaluationsFlush()
   return evaluation
 }
 
@@ -148,19 +222,25 @@ export function getAllEvaluations(): Evaluation[] {
 }
 
 export function getEvaluation(id: string): Evaluation | undefined {
-  return store.evaluations.find((evaluation) => evaluation.id === id)
+  return store.evaluationsById.get(id)
 }
 
-export function clearWardrobeItems() {
+export async function clearWardrobeItems() {
   store.wardrobe_items = []
-  saveWardrobeItems()
+  store.wardrobeById.clear()
+  store.wardrobeByType.clear()
+  store.wardrobeByColor.clear()
+  await ensureWardrobeFlush()
 }
 
-export function clearDatabase() {
+export async function clearDatabase() {
   store.wardrobe_items = []
   store.evaluations = []
-  saveWardrobeItems()
-  saveEvaluations()
+  store.wardrobeById.clear()
+  store.wardrobeByType.clear()
+  store.wardrobeByColor.clear()
+  store.evaluationsById.clear()
+  await Promise.all([ensureWardrobeFlush(), ensureEvaluationsFlush()])
 }
 
 export function getDatabaseStatus() {

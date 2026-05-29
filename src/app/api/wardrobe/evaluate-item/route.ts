@@ -84,7 +84,7 @@ export async function POST(request: Request) {
       created_at: new Date().toISOString(),
     }
 
-    insertEvaluation(evaluationRecord as any)
+    await insertEvaluation(evaluationRecord as any)
     console.log(`[evaluateItem] Saved evaluation: ${evaluationRecord.id}`)
 
     return NextResponse.json(

@@ -31,7 +31,5 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Upload error:', error)
     return createErrorResponse('Failed to extract metadata', 500)
-      { status: 500 }
-    )
   }
 }

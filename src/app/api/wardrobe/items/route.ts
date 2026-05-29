@@ -30,7 +30,7 @@ export async function DELETE(request: Request) {
       )
     }
 
-    const deleted = deleteWardrobeItem(itemId)
+    const deleted = await deleteWardrobeItem(itemId)
 
     if (!deleted) {
       return NextResponse.json(
