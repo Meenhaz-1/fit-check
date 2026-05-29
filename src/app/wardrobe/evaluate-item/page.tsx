@@ -71,7 +71,6 @@ const VERDICT_CONFIG = {
 
 export default function EvaluateItemPage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const buttonRef = useRef<HTMLButtonElement>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [mediaType, setMediaType] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -80,8 +79,6 @@ export default function EvaluateItemPage() {
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
   const [selectedPersona, setSelectedPersona] = useState<Persona>('minimalist')
   const [result, setResult] = useState<EvaluationResult | null>(null)
-  const [buttonPressed, setButtonPressed] = useState(false)
-  const [showRipple, setShowRipple] = useState(false)
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -174,35 +171,6 @@ export default function EvaluateItemPage() {
       setError(err instanceof Error ? err.message : 'Failed to evaluate outfit')
     } finally {
       setLoading(false)
-    }
-  }
-
-  const handleButtonMouseDown = () => {
-    setButtonPressed(true)
-    setShowRipple(true)
-    if (buttonRef.current) {
-      buttonRef.current.classList.remove('animate-button-release')
-      buttonRef.current.classList.add('animate-button-press', 'animate-accent-ripple')
-    }
-  }
-
-  const handleButtonMouseUp = () => {
-    setButtonPressed(false)
-    if (buttonRef.current) {
-      // Remove press animation and set to 90% scale
-      buttonRef.current.classList.remove('animate-button-press')
-      buttonRef.current.style.transform = 'scale(0.90)'
-      // Force reflow to ensure transform state is applied
-      void buttonRef.current.offsetHeight
-      // Trigger release animation from 90% → 105% → 100%
-      buttonRef.current.classList.add('animate-button-release')
-      // Cleanup after animation completes
-      setTimeout(() => {
-        if (buttonRef.current) {
-          buttonRef.current.classList.remove('animate-button-release', 'animate-accent-ripple')
-          buttonRef.current.style.transform = ''
-        }
-      }, 200)
     }
   }
 
@@ -353,11 +321,7 @@ export default function EvaluateItemPage() {
                   </div>
 
                   <button
-                    ref={buttonRef}
                     onClick={handleEvaluate}
-                    onMouseDown={handleButtonMouseDown}
-                    onMouseUp={handleButtonMouseUp}
-                    onMouseLeave={handleButtonMouseUp}
                     disabled={loading || selectedItems.size === 0}
                     className={`w-full px-6 py-4 bg-on-surface text-surface text-sm font-medium tracking-btn uppercase hover:bg-black transition-colors duration-150 disabled:opacity-40 ${
                       loading ? 'animate-loading-pulse' : ''
