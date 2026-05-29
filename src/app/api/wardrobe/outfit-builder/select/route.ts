@@ -8,6 +8,26 @@ interface SelectRequest {
   itemType: 'top' | 'bottom' | 'shoes'
 }
 
+// Convert database item_type to category
+function getItemCategory(itemType: string): 'top' | 'bottom' | 'shoes' | 'other' {
+  const lower = (itemType || '').toLowerCase()
+
+  if (lower.includes('pant') || lower.includes('trouser') || lower.includes('jean') ||
+      lower.includes('skirt') || lower.includes('short') || lower.includes('legging')) {
+    return 'bottom'
+  } else if (lower.includes('shoe') || lower.includes('boot') || lower.includes('sneaker') ||
+             lower.includes('loafer') || lower.includes('sandal') || lower.includes('pump') ||
+             lower.includes('heel')) {
+    return 'shoes'
+  } else if (lower.includes('shirt') || lower.includes('top') || lower.includes('blouse') ||
+             lower.includes('jacket') || lower.includes('sweater') || lower.includes('cardigan') ||
+             lower.includes('vest') || lower.includes('coat') || lower.includes('dress')) {
+    return 'top'
+  }
+
+  return 'other'
+}
+
 export async function POST(request: Request) {
   const startTime = performance.now()
   console.log('[outfit-builder/select] Request started')
@@ -42,11 +62,12 @@ export async function POST(request: Request) {
     const allWardrobeItems = getAllWardrobeItems()
     console.timeEnd('Fetch wardrobe items')
 
-    // Filter: exclude items of the same type (no point suggesting another shirt if looking for shirt pairings)
+    // Filter: exclude items of the same category (no point suggesting another shirt if looking for shirt pairings)
     console.time('Filter complementary items')
-    const wardrobeItems = allWardrobeItems.filter(
-      (item) => item.item_type !== body.itemType && item.id !== body.itemId
-    )
+    const wardrobeItems = allWardrobeItems.filter((item) => {
+      const itemCategory = getItemCategory(item.item_type as string)
+      return itemCategory !== body.itemType && item.id !== body.itemId
+    })
     console.timeEnd('Filter complementary items')
 
     console.log(`[outfit-builder/select] Filtered from ${allWardrobeItems.length} to ${wardrobeItems.length} complementary items`)
