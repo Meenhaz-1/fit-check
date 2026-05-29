@@ -958,7 +958,9 @@ export async function generateOutfitSuggestions(
           const weight = item.visual_weight || 'medium'
           const fit = item.fit || 'unknown'
           const silhouette = item.silhouette || 'unknown'
-          return `ID:${item.id} | ${item.item_type} | Color:${color} | Material:${material} | Formality:${formality} | Weight:${weight} | Fit:${fit} | Silhouette:${silhouette}`
+          // Use description if available, otherwise fall back to item_type
+          const description = item.description || item.item_type || 'clothing item'
+          return `ID:${item.id} | ${description} | Color:${color} | Material:${material} | Formality:${formality} | Weight:${weight} | Fit:${fit} | Silhouette:${silhouette}`
         })
         .join('\n')
     }
@@ -1000,6 +1002,7 @@ This item MUST be included in every outfit (as ${pieceType}Id in all 3 combinati
 ${selectedItemConstraint}
 
 AVAILABLE WARDROBE ITEMS (ORGANIZED BY CATEGORY):
+Note: Product descriptions are detailed characterizations (e.g., "oversized cream linen button-up", "slim-fit navy chinos", "cognac leather loafers"). Use these descriptions as they provide richer context than generic item types.
 
 TOPS (shirts, blouses, sweaters, etc.):
 ${topsList || 'None available'}
@@ -1040,7 +1043,7 @@ ${selectedItemId ? `- ${pieceType === 'top' ? 'topId MUST always be ' + selected
 - DO NOT use the same item ID in multiple outfits`}
 - accessoryId MUST be an ID from ACCESSORIES (or null)
 - Each outfit must score between 75-95 (vary the scores - show that each combination has different strengths)
-- "whyItWorks" must ONLY mention items you actually selected
+- "whyItWorks" must ONLY mention items you actually selected by their PRODUCT DESCRIPTIONS (the detailed characterization, not generic type)
 - When writing "whyItWorks", think like a senior stylist explaining to a client - include:
   * NARRATIVE: What's the story/occasion/mood? Why does this combination feel intentional?
   * PROPORTIONS: How do the silhouettes work together? Does it flatter? Is it balanced?
