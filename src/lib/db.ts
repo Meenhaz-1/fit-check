@@ -1,4 +1,4 @@
-import { readFileSync, mkdirSync } from 'fs'
+import { readFileSync, mkdirSync, unlinkSync } from 'fs'
 import { writeFile } from 'fs/promises'
 import { join } from 'path'
 import Papa from 'papaparse'
@@ -27,24 +27,55 @@ interface Evaluation {
   created_at: string
 }
 
+interface SkinAnalysis {
+  skinTone: 'fair' | 'light' | 'medium' | 'tan' | 'deep'
+  undertone: 'warm' | 'cool' | 'neutral'
+  confidence: number
+}
+
+interface UserProfile {
+  id: string
+  name: string
+  gender?: 'male' | 'female' | 'non-binary' | 'prefer-not-to-say'
+  buildType?: 'hourglass' | 'pear' | 'apple' | 'rectangle' | 'inverted-triangle'
+  buildTypeConfirmed?: boolean
+  photoUrl?: string
+  skinAnalysis?: SkinAnalysis
+  colorPalettes?: {
+    aiSuggested?: string[]
+    userSelected?: string
+  }
+  aesthetics?: string[]
+  formality?: string
+  paletteAffinity?: string
+  isDefault?: boolean
+  created_at: string
+  updated_at: string
+}
+
 const dataDir = join(process.cwd(), 'data')
 const evaluationsFile = join(dataDir, 'evaluations.json')
 const sampleWardrobeFile = join(dataDir, 'sample-wardrobe.csv')
+const profilesFile = join(dataDir, 'profiles.json')
 
 let wardrobeFlushTimer: NodeJS.Timeout | null = null
 let wardrobeFlushPromise: Promise<void> | null = null
 let evaluationsFlushTimer: NodeJS.Timeout | null = null
 let evaluationsFlushPromise: Promise<void> | null = null
+let profilesFlushTimer: NodeJS.Timeout | null = null
+let profilesFlushPromise: Promise<void> | null = null
 const FLUSH_DELAY = 100
 
 const store = {
   wardrobe_items: [] as WardrobeItem[],
   evaluations: [] as Evaluation[],
+  profiles: [] as UserProfile[],
   // Indexes for O(1) lookups
   wardrobeById: new Map<string, WardrobeItem>(),
   wardrobeByType: new Map<string, WardrobeItem[]>(),
   wardrobeByColor: new Map<string, WardrobeItem[]>(),
   evaluationsById: new Map<string, Evaluation>(),
+  profilesById: new Map<string, UserProfile>(),
 }
 
 function ensureDataDir() {
@@ -81,6 +112,22 @@ async function ensureEvaluationsFlush(): Promise<void> {
   })
 
   return evaluationsFlushPromise
+}
+
+async function ensureProfilesFlush(): Promise<void> {
+  if (profilesFlushTimer) clearTimeout(profilesFlushTimer)
+  if (profilesFlushPromise) return profilesFlushPromise
+
+  profilesFlushPromise = new Promise<void>((resolve) => {
+    profilesFlushTimer = setTimeout(async () => {
+      await saveProfiles()
+      profilesFlushTimer = null
+      profilesFlushPromise = null
+      resolve()
+    }, FLUSH_DELAY)
+  })
+
+  return profilesFlushPromise
 }
 
 function loadSampleWardrobe() {
@@ -150,6 +197,33 @@ async function saveEvaluations() {
   }
 }
 
+function loadProfiles() {
+  try {
+    const content = readFileSync(profilesFile, 'utf-8')
+    const data = JSON.parse(content)
+    if (Array.isArray(data)) {
+      store.profiles = data
+      store.profilesById.clear()
+      for (const profile of store.profiles) {
+        store.profilesById.set(profile.id, profile)
+      }
+      console.log(`Loaded ${store.profiles.length} profiles from JSON`)
+    }
+  } catch (error: any) {
+    if (error.code !== 'ENOENT') {
+      console.error('Failed to load profiles from JSON:', error)
+    }
+  }
+}
+
+async function saveProfiles() {
+  try {
+    await writeFile(profilesFile, JSON.stringify(store.profiles, null, 2), 'utf-8')
+  } catch (error) {
+    console.error('Failed to save profiles to JSON:', error)
+  }
+}
+
 async function saveWardrobeItems() {
   try {
     const csv = Papa.unparse(store.wardrobe_items, { header: true })
@@ -164,6 +238,7 @@ export function initializeDatabase() {
   ensureDataDir()
   loadSampleWardrobe()
   loadEvaluations()
+  loadProfiles()
   console.log('Database initialized')
 }
 
@@ -225,6 +300,87 @@ export function getEvaluation(id: string): Evaluation | undefined {
   return store.evaluationsById.get(id)
 }
 
+export async function insertProfile(profile: UserProfile): Promise<UserProfile> {
+  if (store.profiles.length >= 100) {
+    throw new Error('Profile limit reached')
+  }
+  store.profiles.push(profile)
+  store.profilesById.set(profile.id, profile)
+  await ensureProfilesFlush()
+  return profile
+}
+
+export function getAllProfiles(): UserProfile[] {
+  return store.profiles
+}
+
+export function getProfile(id: string): UserProfile | undefined {
+  return store.profilesById.get(id)
+}
+
+export function getDefaultProfile(): UserProfile | undefined {
+  return store.profiles.find(p => p.isDefault)
+}
+
+export async function updateProfile(id: string, updates: Partial<UserProfile>): Promise<UserProfile | null> {
+  const profile = store.profilesById.get(id)
+  if (!profile) return null
+
+  const updated = { ...profile, ...updates, updated_at: new Date().toISOString() }
+  store.profilesById.set(id, updated)
+
+  const index = store.profiles.findIndex(p => p.id === id)
+  if (index !== -1) {
+    store.profiles[index] = updated
+  }
+
+  await ensureProfilesFlush()
+  return updated
+}
+
+export async function setDefaultProfile(id: string): Promise<boolean> {
+  const profile = store.profilesById.get(id)
+  if (!profile) return false
+
+  // Unset all other defaults
+  for (const p of store.profiles) {
+    if (p.id !== id && p.isDefault) {
+      p.isDefault = false
+    }
+  }
+
+  profile.isDefault = true
+  store.profilesById.set(id, profile)
+  await ensureProfilesFlush()
+  return true
+}
+
+export async function deleteProfile(id: string): Promise<boolean> {
+  const profile = store.profilesById.get(id)
+  if (!profile) return false
+
+  store.profiles = store.profiles.filter(p => p.id !== id)
+  store.profilesById.delete(id)
+
+  // If deleted profile was default, set another as default
+  if (profile.isDefault && store.profiles.length > 0) {
+    store.profiles[0].isDefault = true
+  }
+
+  // Clean up profile photo file
+  if (profile.photoUrl) {
+    try {
+      const photoPath = join(process.cwd(), 'public', profile.photoUrl)
+      unlinkSync(photoPath)
+    } catch (error) {
+      console.warn(`Failed to delete profile photo at ${profile.photoUrl}:`, error)
+    }
+  }
+
+  await ensureProfilesFlush()
+  return true
+}
+
 export async function clearWardrobeItems() {
   store.wardrobe_items = []
   store.wardrobeById.clear()
@@ -236,11 +392,13 @@ export async function clearWardrobeItems() {
 export async function clearDatabase() {
   store.wardrobe_items = []
   store.evaluations = []
+  store.profiles = []
   store.wardrobeById.clear()
   store.wardrobeByType.clear()
   store.wardrobeByColor.clear()
   store.evaluationsById.clear()
-  await Promise.all([ensureWardrobeFlush(), ensureEvaluationsFlush()])
+  store.profilesById.clear()
+  await Promise.all([ensureWardrobeFlush(), ensureEvaluationsFlush(), ensureProfilesFlush()])
 }
 
 export function getDatabaseStatus() {
@@ -249,8 +407,11 @@ export function getDatabaseStatus() {
     type: 'file-based (CSV + JSON)',
     itemsCount: store.wardrobe_items.length,
     evaluationsCount: store.evaluations.length,
+    profilesCount: store.profiles.length,
     sampleWardrobeLoaded: store.wardrobe_items.length > 0,
   }
 }
+
+export type { WardrobeItem, Evaluation, UserProfile, SkinAnalysis }
 
 initializeDatabase()

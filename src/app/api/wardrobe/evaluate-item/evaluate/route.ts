@@ -8,6 +8,26 @@ interface EvaluateRequest {
   mediaType?: string
   selectedItems: string[]
   persona?: string
+  profile?: {
+    id: string
+    name: string
+    gender?: string
+    buildType?: string
+    skinAnalysis?: {
+      skinTone: string
+      undertone: string
+      confidence: number
+    }
+    colorPalettes?: {
+      aiSuggested?: string[]
+      userSelected?: string
+    }
+    aesthetics?: string[]
+    formality?: string
+    paletteAffinity?: string
+  }
+  profilePhoto?: string
+  feedback?: string
 }
 
 export async function POST(request: Request) {
@@ -25,6 +45,8 @@ export async function POST(request: Request) {
     }
 
     console.log(`[evaluate] Evaluating ${body.selectedItems.length} selected items`)
+    console.log(`[evaluate] Profile received: ${body.profile ? body.profile.name : 'NONE'}`)
+    console.log(`[evaluate] Profile photo URL: ${body.profilePhoto || 'NONE'}`)
 
     // Extract metadata for all selected items in one efficient call
     const metadataArray = (await extractMetadata(body.image, body.selectedItems, validation.mediaType!)) as Record<
@@ -47,8 +69,20 @@ export async function POST(request: Request) {
 
     console.log(`[evaluate] Extracted metadata for ${itemsWithMetadata.length} items in single GPT call`)
 
-    // Get comprehensive evaluation with persona
-    const evaluation = await evaluateOutfit(itemsWithMetadata, body.persona || 'minimalist')
+    // Get comprehensive evaluation with persona and optional profile
+    const evaluation = await evaluateOutfit(
+      itemsWithMetadata,
+      body.persona || 'minimalist',
+      body.profile
+    )
+
+    // Log profile and feedback info if provided
+    if (body.profilePhoto) {
+      console.log(`[evaluate] Profile photo provided: ${body.profile?.name || 'Unknown profile'}`)
+    }
+    if (body.feedback) {
+      console.log(`[evaluate] User feedback received: ${body.feedback.substring(0, 50)}...`)
+    }
 
     // Save evaluation to database
     const evaluationRecord = {
@@ -58,6 +92,8 @@ export async function POST(request: Request) {
       reasoning: evaluation.verdictReasoning || 'Comprehensive outfit evaluation provided',
       pairings: undefined,
       created_at: new Date().toISOString(),
+      profile_id: body.profile?.id,
+      user_feedback: body.feedback,
     }
 
     await insertEvaluation(evaluationRecord as any)

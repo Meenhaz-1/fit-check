@@ -132,7 +132,8 @@ Return ONLY valid JSON, no markdown, no text before or after.`,
     itemsList: string,
     isSingleItem: boolean,
     persona: string,
-    detectedItems: any[]
+    detectedItems: any[],
+    userProfile?: any
   ) => {
     const personaConfig =
       persona === 'trendforward'
@@ -164,6 +165,25 @@ Return ONLY valid JSON, no markdown, no text before or after.`,
 ANALYSIS PERSPECTIVE: ${personaConfig.name}
 PHILOSOPHY: ${personaConfig.philosophy}
 STYLING PREFERENCES: ${personaConfig.stylePreferences}
+
+${
+  userProfile
+    ? `PERSONALIZED FOR: ${userProfile.name}
+${userProfile.skinAnalysis ? `SKIN TONE: ${userProfile.skinAnalysis.skinTone} with ${userProfile.skinAnalysis.undertone} undertone` : ''}
+${userProfile.buildType ? `BODY TYPE: ${userProfile.buildType}` : ''}
+${userProfile.gender ? `GENDER IDENTITY: ${userProfile.gender}` : ''}
+${userProfile.aesthetics?.length ? `PREFERRED AESTHETICS: ${userProfile.aesthetics.join(', ')}` : ''}
+${userProfile.formality ? `LIFESTYLE FORMALITY: ${userProfile.formality}` : ''}
+${userProfile.colorPalettes?.aiSuggested?.length ? `FLATTERING COLORS: ${userProfile.colorPalettes.aiSuggested.join(', ')}` : ''}
+
+PERSONALIZATION DIRECTIVE: Tailor recommendations specifically for this person's profile. Prioritize:
+- Colors that complement their ${userProfile.skinAnalysis?.skinTone} skin tone with ${userProfile.skinAnalysis?.undertone} undertone
+- Fits and silhouettes that flatter their ${userProfile.buildType} body shape
+- Styles that align with their stated aesthetic preferences
+- Formality levels appropriate for their lifestyle (${userProfile.formality})
+- Color choices from their flattering palette when possible`
+    : ''
+}
 
 DETECTED ITEMS:
 ${itemsList}
@@ -261,7 +281,12 @@ Return ONLY valid JSON with this exact structure:
   "colorHarmony": ${isSingleItem ? 'Score how versatile the color is (0-100)' : '85'},
   "proportionBalance": ${isSingleItem ? 'Score how well proportions fit the body (0-100)' : '78'},
   "formalityAlignment": ${isSingleItem ? 'Score how well it matches intended formality (0-100)' : '88'},
-  "overallCohesion": ${isSingleItem ? 'Score overall design quality (0-100)' : '82'}
+  "overallCohesion": ${isSingleItem ? 'Score overall design quality (0-100)' : '82'}${
+    userProfile
+      ? `,
+  "profileSpecificFeedback": "DETAILED paragraph (4-6 sentences) explaining HOW WELL this ${isSingleItem ? 'item' : 'outfit'} works specifically for ${userProfile.name}. Consider: (1) Color compatibility with their ${userProfile.skinAnalysis?.skinTone} skin tone and ${userProfile.skinAnalysis?.undertone} undertone; (2) How the fit/silhouette flatters their ${userProfile.buildType} body shape; (3) Whether it aligns with their ${userProfile.aesthetics?.join(', ')} aesthetic preferences; (4) How appropriate it is for their ${userProfile.formality} lifestyle; (5) Specific styling tips tailored to them. Be warm, encouraging, and specific to THEIR profile."`
+      : ''
+  }
 }
 
 NO markdown, no explanations, ONLY valid JSON.`

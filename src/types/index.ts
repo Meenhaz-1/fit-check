@@ -83,6 +83,7 @@ export interface EvaluationAnalysis {
   proportionBalance: number  // 0-100
   formalityAlignment: number  // 0-100
   overallCohesion: number  // 0-100
+  profileSpecificFeedback?: string  // Detailed feedback on how well the outfit works for the specific person's profile
 }
 
 export interface EvaluateItemRequest {

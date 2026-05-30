@@ -352,7 +352,25 @@ Return ONLY valid JSON, no markdown:
 
 export async function evaluateOutfit(
   detectedItems: Array<{ type: string; color: string; material: string; formality: string; fit: string; silhouette: string; visual_weight: string }>,
-  persona: string = 'minimalist'
+  persona: string = 'minimalist',
+  userProfile?: {
+    id: string
+    name: string
+    gender?: string
+    buildType?: string
+    skinAnalysis?: {
+      skinTone: string
+      undertone: string
+      confidence: number
+    }
+    colorPalettes?: {
+      aiSuggested?: string[]
+      userSelected?: string
+    }
+    aesthetics?: string[]
+    formality?: string
+    paletteAffinity?: string
+  }
 ): Promise<{
   whatWorksWell: string[]
   whatCouldImprove: string[]
@@ -370,6 +388,7 @@ export async function evaluateOutfit(
   proportionBalance: number
   formalityAlignment: number
   overallCohesion: number
+  profileSpecificFeedback?: string
 }> {
   try {
     const itemsList = detectedItems
@@ -377,23 +396,34 @@ export async function evaluateOutfit(
       .join('\n')
     const isSingleItem = detectedItems.length === 1
 
+    const prompt = PROMPTS.evaluateOutfit(itemsList, isSingleItem, persona, detectedItems, userProfile)
+    console.log('[evaluateOutfit] USER PROFILE:', userProfile ? { name: userProfile.name, skinTone: userProfile.skinAnalysis?.skinTone, buildType: userProfile.buildType } : 'NONE')
+    console.log('[evaluateOutfit] PROMPT INCLUDES profileSpecificFeedback:', prompt.includes('profileSpecificFeedback'))
+    console.log('[evaluateOutfit] PROMPT (first 500 chars):', prompt.substring(0, 500))
+
     const response = await client.chat.completions.create({
       model: 'gpt-4o',
       max_tokens: 3000,
       messages: [
         {
           role: 'user',
-          content: PROMPTS.evaluateOutfit(itemsList, isSingleItem, persona, detectedItems),
+          content: prompt,
         },
       ],
     })
 
     const content = response.choices[0]?.message?.content
+    console.log('[evaluateOutfit] RESPONSE (raw):', typeof content === 'string' ? content.substring(0, 500) : 'NOT STRING')
+
     if (typeof content === 'string') {
       try {
-        return cleanAndParseJSON(content)
+        const parsed = cleanAndParseJSON(content)
+        console.log('[evaluateOutfit] PARSED KEYS:', Object.keys(parsed))
+        console.log('[evaluateOutfit] HAS profileSpecificFeedback:', 'profileSpecificFeedback' in parsed)
+        return parsed
       } catch (parseError) {
         console.error('[evaluateOutfit] Parse error:', parseError)
+        console.error('[evaluateOutfit] Content that failed to parse:', content)
         return createFallback('evaluation') as any
       }
     }

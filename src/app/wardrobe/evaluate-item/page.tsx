@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { apiFetch } from '@/lib/apiFetch'
 import type { EvaluationAnalysis } from '@/types'
+import type { UserProfile } from '@/lib/db'
 
 interface EvaluationResult {
   detectedItems: string[]
@@ -79,6 +80,30 @@ export default function EvaluateItemPage() {
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
   const [selectedPersona, setSelectedPersona] = useState<Persona>('minimalist')
   const [result, setResult] = useState<EvaluationResult | null>(null)
+  const [activeProfile, setActiveProfile] = useState<UserProfile | null>(null)
+  const [feedback, setFeedback] = useState<string>('')
+
+  // Fetch active profile on mount and watch for changes
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await apiFetch('/api/profiles/default')
+        const data = await response.json()
+        // API returns profile directly, not wrapped in an object
+        if (data && data.name) {
+          setActiveProfile(data)
+        }
+      } catch (err) {
+        console.error('Failed to fetch active profile:', err)
+      }
+    }
+
+    fetchProfile()
+
+    // Poll for profile changes every 2 seconds
+    const interval = setInterval(fetchProfile, 2000)
+    return () => clearInterval(interval)
+  }, [])
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -140,6 +165,42 @@ export default function EvaluateItemPage() {
     setSelectedItems(newSelected)
   }
 
+  // Compress image to reduce size
+  const compressImage = (base64: string): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image()
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        const maxWidth = 1024
+        const maxHeight = 1024
+        let width = img.width
+        let height = img.height
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width
+            width = maxWidth
+          }
+        } else {
+          if (height > maxHeight) {
+            width = (width * maxHeight) / height
+            height = maxHeight
+          }
+        }
+
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d')
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height)
+        }
+
+        resolve(canvas.toDataURL('image/jpeg', 0.8))
+      }
+      img.src = base64
+    })
+  }
+
   const handleEvaluate = async () => {
     if (!imagePreview || selectedItems.size === 0) {
       setError('Please select at least one item to evaluate')
@@ -150,14 +211,27 @@ export default function EvaluateItemPage() {
     setError(null)
 
     try {
+      // Log profile info
+      console.log('[handleEvaluate] Active profile:', activeProfile?.name || 'NONE')
+      console.log('[handleEvaluate] Profile photo URL:', activeProfile?.photoUrl || 'NONE')
+
+      // Compress the image before sending
+      const compressedImage = await compressImage(imagePreview)
+
+      const requestBody = {
+        image: compressedImage,
+        mediaType: 'image/jpeg',
+        selectedItems: Array.from(selectedItems),
+        persona: selectedPersona,
+        profile: activeProfile || undefined,
+        profilePhoto: activeProfile?.photoUrl || undefined,
+      }
+
+      console.log('[handleEvaluate] Sending request with profile:', requestBody.profile?.name || 'NONE')
+
       const response = await apiFetch('/api/wardrobe/evaluate-item/evaluate', {
         method: 'POST',
-        body: JSON.stringify({
-          image: imagePreview,
-          mediaType: mediaType || 'image/jpeg',
-          selectedItems: Array.from(selectedItems),
-          persona: selectedPersona,
-        }),
+        body: JSON.stringify(requestBody),
       })
 
       const data = await response.json()
@@ -167,6 +241,7 @@ export default function EvaluateItemPage() {
       }
 
       setResult(data)
+      setFeedback('')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to evaluate outfit')
     } finally {
@@ -283,6 +358,30 @@ export default function EvaluateItemPage() {
                       </label>
                     ))}
                   </div>
+
+                  {/* Profile badge (if available) */}
+                  {activeProfile && (
+                    <div className="mb-8 pb-8 border-b border-outline-variant">
+                      <p className="label-caps text-on-surface-variant text-xs mb-2">Personalized For</p>
+                      <div className="flex items-center gap-3">
+                        {activeProfile.photoUrl && (
+                          <img
+                            src={activeProfile.photoUrl}
+                            alt={activeProfile.name}
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
+                        )}
+                        <div>
+                          <p className="text-sm font-medium text-on-surface">{activeProfile.name}</p>
+                          {activeProfile.skinAnalysis && (
+                            <p className="text-xs text-on-surface-variant">
+                              {activeProfile.skinAnalysis.skinTone} tone • {activeProfile.skinAnalysis.undertone} undertone
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Persona selector */}
                   <div className="mb-8 pb-8 border-b border-outline-variant">
@@ -519,6 +618,25 @@ export default function EvaluateItemPage() {
                       </li>
                     ))}
                   </ul>
+                </div>
+              )}
+
+              {/* Does this work for you? - Profile-specific feedback */}
+              {activeProfile && result.evaluation.profileSpecificFeedback && (
+                <div className="border-b border-outline-variant pb-6 sm:pb-8 mb-6 sm:mb-8">
+                  <div className="mb-4 pb-4 border-b border-outline-variant">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-xl">👤</span>
+                      <p className="label-caps text-xs sm:text-sm">
+                        Does this work for <span className="font-medium">{activeProfile.name}</span>?
+                      </p>
+                    </div>
+                  </div>
+                  <div className="prose prose-sm max-w-none">
+                    <p className="text-xs sm:text-sm text-on-surface leading-relaxed whitespace-pre-wrap">
+                      {result.evaluation.profileSpecificFeedback}
+                    </p>
+                  </div>
                 </div>
               )}
 
