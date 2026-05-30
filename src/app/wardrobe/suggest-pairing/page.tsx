@@ -351,7 +351,7 @@ export default function OutfitBuilder() {
                         </div>
                         <AnimatedStatusBadge
                           trigger={selectedItemId === item.id && loading}
-                          onAnimationComplete={() => {}}
+                          onAnimationComplete={() => setSelectedItemId(null)}
                         />
                       </button>
                     ))}

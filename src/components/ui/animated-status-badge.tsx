@@ -18,35 +18,27 @@ export function AnimatedStatusBadge({
   const [isAnimating, setIsAnimating] = useState(false)
   const [isCompleted, setIsCompleted] = useState(false)
 
-  const startAnimation = () => {
+  useEffect(() => {
+    if (!trigger) return
+
     setIsAnimating(true)
     setIsCompleted(false)
-    setTimeout(() => {
+
+    const t1 = setTimeout(() => {
       setIsAnimating(false)
-      setTimeout(() => {
+      const t2 = setTimeout(() => {
         setIsCompleted(true)
-        // Make completed badge disappear after 3 seconds
-        setTimeout(() => {
+        const t3 = setTimeout(() => {
           setIsCompleted(false)
-          if (onAnimationComplete) {
-            onAnimationComplete()
-          }
+          onAnimationComplete?.()
         }, 3000)
-      }, 300) // Delay the appearance of "Completed" badge
-    }, 3000) // Animation duration
-  }
+        return () => clearTimeout(t3)
+      }, 300)
+      return () => clearTimeout(t2)
+    }, 3000)
 
-  useEffect(() => {
-    if (!isAnimating && !isCompleted) {
-      setIsCompleted(false)
-    }
-  }, [isAnimating, isCompleted])
-
-  useEffect(() => {
-    if (trigger) {
-      startAnimation()
-    }
-  }, [trigger])
+    return () => clearTimeout(t1)
+  }, [trigger, onAnimationComplete])
 
   return (
     <>
