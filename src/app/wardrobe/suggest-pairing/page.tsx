@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { apiFetch } from '@/lib/apiFetch'
+import { categorizeItemType } from '@/lib/ai-utils'
 import type { OutfitSuggestion } from '@/types'
 
 interface WardrobeItem {
@@ -43,17 +44,15 @@ export default function OutfitBuilder() {
     fetchWardrobeItems()
   }, [])
 
-  // Auto-scroll to suggestions when they're ready
   useEffect(() => {
-    if (outfitSuggestions.length > 0 && suggestionsRef.current) {
-      // Small delay to ensure DOM has rendered
-      setTimeout(() => {
-        suggestionsRef.current?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        })
-      }, 300)
-    }
+    if (outfitSuggestions.length === 0 || !suggestionsRef.current) return
+    let rafId: number
+    const firstRaf = requestAnimationFrame(() => {
+      rafId = requestAnimationFrame(() => {
+        suggestionsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
+    })
+    return () => cancelAnimationFrame(rafId ?? firstRaf)
   }, [outfitSuggestions])
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -116,26 +115,11 @@ export default function OutfitBuilder() {
     const selectedItem = wardrobeItems.find((item) => item.id === itemId)
     if (!selectedItem) return
 
-    // Determine item type
-    let itemType: 'top' | 'bottom' | 'shoes' = 'top'
-    const itemLower = selectedItem.item_type.toLowerCase()
-    if (
-      itemLower.includes('pant') ||
-      itemLower.includes('trouser') ||
-      itemLower.includes('jean') ||
-      itemLower.includes('skirt') ||
-      itemLower.includes('short')
-    ) {
-      itemType = 'bottom'
-    } else if (
-      itemLower.includes('shoe') ||
-      itemLower.includes('boot') ||
-      itemLower.includes('sneaker') ||
-      itemLower.includes('loafer') ||
-      itemLower.includes('sandal')
-    ) {
-      itemType = 'shoes'
-    }
+    const category = categorizeItemType(selectedItem.item_type)
+    const itemType: 'top' | 'bottom' | 'shoes' =
+      category === 'bottom' ? 'bottom' :
+      category === 'shoes' ? 'shoes' :
+      'top'
 
     // Call the outfit builder select endpoint
     setLoading(true)
@@ -275,14 +259,7 @@ export default function OutfitBuilder() {
                 </div>
               )}
 
-              {loading && (
-                <div className="mb-8 pb-8 border-b border-outline-variant">
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-sage rounded-full animate-loading-pulse"></div>
-                    <p className="label-caps text-on-surface-variant animate-loading-pulse">Generating outfit suggestions…</p>
-                  </div>
-                </div>
-              )}
+              {loading && <LoadingIndicator />}
 
               {outfitSuggestions.length > 0 && (
                 <div ref={suggestionsRef} className="space-y-6">
@@ -350,7 +327,7 @@ export default function OutfitBuilder() {
                         key={item.id}
                         onClick={() => handleSelectItem(item.id)}
                         disabled={loading}
-                        className={`group relative overflow-hidden border-2 transition-all duration-150 ${
+                        className={`group relative overflow-hidden border-2 transition-all duration-300 hover:-translate-y-1 ${
                           selectedItemId === item.id
                             ? 'border-on-surface bg-surface-container'
                             : 'border-outline-variant hover:border-on-surface'
@@ -436,7 +413,17 @@ export default function OutfitBuilder() {
   )
 }
 
-// Outfit Card Component
+function LoadingIndicator() {
+  return (
+    <div className="mb-8 pb-8 border-b border-outline-variant">
+      <div className="flex items-center gap-3">
+        <div className="w-2 h-2 bg-sage rounded-full animate-loading-pulse"></div>
+        <p className="label-caps text-on-surface-variant animate-loading-pulse">Generating outfit suggestions…</p>
+      </div>
+    </div>
+  )
+}
+
 function OutfitCard({ outfit }: { outfit: OutfitSuggestion }) {
   return (
     <div className="p-4 sm:p-5 md:p-6 border border-outline-variant bg-surface-container rounded-lg space-y-4">
@@ -449,7 +436,7 @@ function OutfitCard({ outfit }: { outfit: OutfitSuggestion }) {
       {/* Outfit Items Preview */}
       <div className="grid grid-cols-3 gap-2 sm:gap-3">
         {outfit.top && (
-          <div className="min-w-0">
+          <div className="min-w-0 transition-transform duration-300 hover:-translate-y-1">
             <div className="aspect-[2/3] bg-surface-low border border-outline-variant flex items-center justify-center mb-1 sm:mb-2 overflow-hidden">
               {outfit.top.imageUrl ? (
                 <img
@@ -467,7 +454,7 @@ function OutfitCard({ outfit }: { outfit: OutfitSuggestion }) {
         )}
 
         {outfit.bottom && (
-          <div className="min-w-0">
+          <div className="min-w-0 transition-transform duration-300 hover:-translate-y-1">
             <div className="aspect-[2/3] bg-surface-low border border-outline-variant flex items-center justify-center mb-1 sm:mb-2 overflow-hidden">
               {outfit.bottom.imageUrl ? (
                 <img
@@ -485,7 +472,7 @@ function OutfitCard({ outfit }: { outfit: OutfitSuggestion }) {
         )}
 
         {outfit.shoes && (
-          <div className="min-w-0">
+          <div className="min-w-0 transition-transform duration-300 hover:-translate-y-1">
             <div className="aspect-[2/3] bg-surface-low border border-outline-variant flex items-center justify-center mb-1 sm:mb-2 overflow-hidden">
               {outfit.shoes.imageUrl ? (
                 <img

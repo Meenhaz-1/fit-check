@@ -143,7 +143,7 @@ export default function WardrobeGallery() {
         {!loading && filtered.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-3 sm:gap-x-5 md:gap-x-6 lg:gap-x-8 gap-y-8 sm:gap-y-10 md:gap-y-12 lg:gap-y-14">
             {filtered.map((item) => (
-              <div key={item.id} className="group">
+              <div key={item.id} className="group transition-transform duration-300 hover:-translate-y-1">
                 {/* Image */}
                 <div className="w-full aspect-[3/4] bg-surface-container overflow-hidden mb-5 relative">
                   {item.imageUrl ? (
