@@ -17,7 +17,7 @@ export function Navigation() {
     pathname === href || (href !== '/' && pathname.startsWith(href))
 
   return (
-    <nav className="bg-surface border-b border-outline-variant sticky top-0 z-50">
+    <nav className="sticky top-0 z-50 backdrop-blur-md bg-surface/80 border-b border-outline-variant/40 shadow-lg shadow-black/5">
       <div className="max-w-atelier mx-auto px-3 sm:px-6 md:px-8 lg:px-16 h-14 sm:h-16 flex items-center justify-between gap-3 sm:gap-6">
         <Link
           href="/"
@@ -31,10 +31,10 @@ export function Navigation() {
             <Link
               key={href}
               href={href}
-              className={`label-caps text-xs sm:text-xs md:text-sm transition-colors duration-150 whitespace-nowrap ${
+              className={`label-caps text-xs sm:text-xs md:text-sm transition-all duration-150 whitespace-nowrap px-2 py-1.5 rounded-md ${
                 isActive(href)
-                  ? 'text-on-surface border-b border-on-surface pb-px'
-                  : 'text-outline hover:text-on-surface-variant'
+                  ? 'text-on-surface bg-surface/40 border-b border-on-surface pb-px'
+                  : 'text-outline hover:text-on-surface-variant hover:bg-surface/20'
               }`}
             >
               <span className="sm:hidden">{short}</span>
