@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { apiFetch } from '@/lib/apiFetch'
 import { categorizeItemType } from '@/lib/ai-utils'
+import { AnimatedStatusBadge } from '@/components/ui/animated-status-badge'
 import type { OutfitSuggestion } from '@/types'
 
 interface WardrobeItem {
@@ -348,6 +349,10 @@ export default function OutfitBuilder() {
                           <p className="text-xs font-medium text-on-surface truncate">{item.item_type}</p>
                           <p className="text-xs text-on-surface-variant">{item.color}</p>
                         </div>
+                        <AnimatedStatusBadge
+                          trigger={selectedItemId === item.id && loading}
+                          onAnimationComplete={() => {}}
+                        />
                       </button>
                     ))}
                   </div>
