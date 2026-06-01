@@ -23,6 +23,14 @@ The verdict is tailored to you. Set up a profile with your body shape, skin tone
 
 ---
 
+## Screenshots
+
+| Purchase Consultant | Outfit Builder |
+|---|---|
+| ![Purchase Consultant](docs/screenshots/Purchase%20Consultant.jpeg) | ![Outfit Builder](docs/screenshots/Outfit%20Builder.jpeg) |
+
+---
+
 ## Key features
 
 - **Outfit scoring** — four-dimension analysis with a clear buy/don't buy verdict
