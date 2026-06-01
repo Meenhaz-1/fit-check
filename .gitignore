@@ -20,9 +20,10 @@ tsconfig.tsbuildinfo
 # Graphify output
 graphify-out/
 
-# IDE
+# IDE and editor config
 .vscode/
 .idea/
+.claude/
 *.swp
 *.swo
 *~
@@ -32,8 +33,10 @@ graphify-out/
 data/
 *.db
 
-# Uploads
+# Uploads and user-generated content
 public/uploads/
+public/profile-photos/
+public/wardrobe-images/
 
 # Testing
 coverage/
@@ -50,3 +53,9 @@ yarn-error.log*
 tests/fixtures/evaluation_report.txt
 ground_truth_template.xlsx
 server.log
+
+# Internal dev/cleanup docs
+PROJECT_STRUCTURE.md
+docs/CLEANUP_REPORT.txt
+docs/CLEANUP_SUMMARY.md
+docs/archive/
