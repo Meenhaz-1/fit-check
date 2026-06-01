@@ -9,7 +9,7 @@
 
 ## The problem
 
-Most people buy clothes they never wear. They look good on the hanger, or on someone else in the store, but once home the piece doesn't work — wrong for their colouring, wrong for their body shape, clashes with everything they own.
+Most people buy clothes they never wear. They look good on the hanger, or on someone else in the store, but once home the piece doesn't work, wrong for their colouring, wrong for their body shape, clashes with everything they own.
 
 The usual options are a friend's or spouse's opinion, a stylist (expensive), or going with your gut (the reason the pile exists in the first place).
 
@@ -17,7 +17,7 @@ The usual options are a friend's or spouse's opinion, a stylist (expensive), or 
 
 Fit Check is an AI outfit evaluator that gives you an honest, personalised verdict before you commit.
 
-Upload a photo of an outfit or item. The app detects what you're wearing, scores it across cohesion, colour harmony, proportion, and formality — then tells you plainly: **buy it or don't**.
+Upload a photo of an outfit or item. The app detects what you're wearing, scores it across cohesion, colour harmony, proportion, and formality, then tells you plainly: **buy it or don't**.
 
 The verdict is tailored to you. Set up a profile with your body shape, skin tone, and aesthetic, and every evaluation answers the question that actually matters: *does this work for me specifically?*
 
