@@ -11,7 +11,7 @@
 
 Most people buy clothes they never wear. They look good on the hanger, or on someone else in the store, but once home the piece doesn't work — wrong for their colouring, wrong for their body shape, clashes with everything they own.
 
-The usual options are a friend's opinion (biased, unavailable), a stylist (expensive), or going with your gut (the reason the pile exists in the first place).
+The usual options are a friend's or spouse's opinion, a stylist (expensive), or going with your gut (the reason the pile exists in the first place).
 
 ## What Fit Check does
 
@@ -62,7 +62,7 @@ npm install
 Create `.env.local`:
 
 ```
-OPENAI_API_KEY=sk-...
+OPENAI_API_KEY=
 ```
 
 ```bash
