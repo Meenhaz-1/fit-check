@@ -16,6 +16,7 @@ node_modules/
 out/
 build/
 tsconfig.tsbuildinfo
+next-env.d.ts
 
 # Graphify output
 graphify-out/
