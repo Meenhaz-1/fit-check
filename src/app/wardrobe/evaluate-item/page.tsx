@@ -407,7 +407,6 @@ export default function EvaluateItemPage() {
                             />
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-1">
-                                <span className="text-lg">{persona.icon}</span>
                                 <p className="label-caps text-on-surface">{persona.name}</p>
                                 <span className="text-xs text-on-surface-variant">{persona.tagline}</span>
                               </div>
@@ -624,19 +623,26 @@ export default function EvaluateItemPage() {
               {/* Does this work for you? - Profile-specific feedback */}
               {activeProfile && result.evaluation.profileSpecificFeedback && (
                 <div className="border-b border-outline-variant pb-6 sm:pb-8 mb-6 sm:mb-8">
-                  <div className="mb-4 pb-4 border-b border-outline-variant">
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="text-xl">👤</span>
-                      <p className="label-caps text-xs sm:text-sm">
-                        Does this work for <span className="font-medium">{activeProfile.name}</span>?
-                      </p>
-                    </div>
-                  </div>
-                  <div className="prose prose-sm max-w-none">
-                    <p className="text-xs sm:text-sm text-on-surface leading-relaxed whitespace-pre-wrap">
-                      {result.evaluation.profileSpecificFeedback}
-                    </p>
-                  </div>
+                  <p className="label-caps text-xs sm:text-sm mb-4">
+                    Works for {activeProfile.name}?
+                  </p>
+                  {(() => {
+                    const feedback = result.evaluation.profileSpecificFeedback
+                    const sep = feedback.indexOf(' — ')
+                    const verdict = sep > -1 ? feedback.slice(0, sep) : null
+                    const reason = sep > -1 ? feedback.slice(sep + 3) : feedback
+                    const verdictColor = verdict?.toLowerCase().startsWith('yes')
+                      ? 'text-success'
+                      : 'text-error'
+                    return (
+                      <>
+                        {verdict && (
+                          <p className={`font-serif text-base font-normal mb-2 ${verdictColor}`}>{verdict}</p>
+                        )}
+                        <p className="text-xs sm:text-sm text-on-surface-variant leading-relaxed">{reason}</p>
+                      </>
+                    )
+                  })()}
                 </div>
               )}
 
